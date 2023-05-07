@@ -1,0 +1,20 @@
+
+tileset.png
+size: 1024, 512
+format: RGBA8888
+filter: Nearest, Nearest
+repeat: none
+Decorations (32x32)
+  rotate: false
+  xy: 608, 224
+  size: 224, 192
+  orig: 224, 192
+  offset: 0, 0
+  index: -1
+Terrain (32x32)
+  rotate: false
+  xy: 0, 0
+  size: 608, 416
+  orig: 608, 416
+  offset: 0, 0
+  index: -1

@@ -1,0 +1,65 @@
+import idle:"com.fatih.hoghavoc.ai.IdleTask"
+import wander:"com.fatih.hoghavoc.ai.WanderTask"
+import meleeAttack:"com.fatih.hoghavoc.ai.MeleeAttackTask"
+import rangeAttack:"com.fatih.hoghavoc.ai.RangeAttackTask"
+import fall:"com.fatih.hoghavoc.ai.FallTask"
+import jump:"com.fatih.hoghavoc.ai.JumpTask"
+import hit:"com.fatih.hoghavoc.ai.HitTask"
+import focus:"com.fatih.hoghavoc.ai.FocusTask"
+
+import isEnemyNearby?:"com.fatih.hoghavoc.ai.IsEnemyNearby"
+import canAttack?:"com.fatih.hoghavoc.ai.CanAttack"
+import isFalling?:"com.fatih.hoghavoc.ai.IsFalling"
+import isJumping?:"com.fatih.hoghavoc.ai.IsJumping"
+import isGetDamage?:"com.fatih.hoghavoc.ai.IsGetHit"
+import canMove?:"com.fatih.hoghavoc.ai.CanMove"
+import canNotAttack?:"com.fatih.hoghavoc.ai.CanNotAttack"
+import canNotMove?:"com.fatih.hoghavoc.ai.CanNotMove"
+import isMeleeAttack?:"com.fatih.hoghavoc.ai.IsMeleeAttack"
+import isRangeAttack?:"com.fatih.hoghavoc.ai.IsRangeAttack"
+
+subtree name : "hit"
+    sequence
+        (isGetDamage?) hit
+
+subtree name : "fall"
+    sequence
+        (isFalling?) fall
+
+subtree name : "jump"
+    sequence
+        (isJumping?) jump
+
+subtree name : "focus"
+    sequence
+        (isEnemyNearby?) (canNotAttack?) (canMove?) (isMeleeAttack?) focus
+
+
+subtree name : "meleeAttackSubTree"
+     sequence
+         meleeAttack
+         wait seconds:"uniform,1.2,1.8"
+
+subtree name : "rangeAttackSubTree"
+     sequence
+         rangeAttack
+         wait seconds:"uniform,1.2,1.8"
+
+subtree name : "doAttack"
+    selector
+        (isRangeAttack?) $rangeAttackSubTree
+        (isMeleeAttack?) $meleeAttackSubTree
+
+root
+    selector
+        $hit
+        $jump
+        $fall
+        (isEnemyNearby?) (canAttack?)  $doAttack
+        $focus
+        (canNotMove?) idle duration:"uniform,1.5,3"
+        (random success:0.25) idle duration:"uniform,1.5,3.5"
+        (canMove?) wander
+
+
+
