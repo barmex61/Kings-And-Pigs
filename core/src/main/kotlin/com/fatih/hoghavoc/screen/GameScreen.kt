@@ -8,10 +8,7 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.EventListener
 import com.badlogic.gdx.scenes.scene2d.Stage
-import com.fatih.hoghavoc.component.AiComponent
-import com.fatih.hoghavoc.component.FloatingTextComponent
-import com.fatih.hoghavoc.component.ImageComponent
-import com.fatih.hoghavoc.component.PlayerStateComponent
+import com.fatih.hoghavoc.component.*
 import com.fatih.hoghavoc.events.MapChangeEvent
 import com.fatih.hoghavoc.input.KeyboardInputProcessor
 import com.fatih.hoghavoc.system.*
@@ -49,6 +46,7 @@ class GameScreen(private val gameStage:Stage,private val uiStage: Stage) : KtxSc
             add<ImageComponent.Companion.ImageComponentListener>()
             add<PlayerStateComponent.Companion.StateComponentListener>()
             add<AiComponent.Companion.AiComponentListener>()
+            add<AttackFixtureComponent.Companion.AttackFixtureComponentListener>()
         }
 
         systems {
@@ -57,6 +55,7 @@ class GameScreen(private val gameStage:Stage,private val uiStage: Stage) : KtxSc
             add<MoveSystem>()
             add<PhysicSystem>()
             add<AttackSystem>()
+            add<AttackFixtureSystem>()
             add<LifeSystem>()
             add<DeadSystem>()
             add<FloatingTextSystem>()

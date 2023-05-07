@@ -108,7 +108,7 @@ class EntitySpawnSystem(
                         extraAttackRange = 0.7f
                         attackFixtureDestroyDelay = 0.4f
                         attackDelay = MELEE_ATTACK_DELAY
-                        attackType = AttackType.FIRE_ATTACK
+                        attackType = AttackType.FIRE
                         maskBits = KING_BIT or BOX_BIT or BOX_BIT or BOMB_BIT or AXE_BIT or GROUND_BIT or FOOT_BIT or PIG_BIT or ROOF_BIT
                     }
                     PIG_BOMB -> {
@@ -119,7 +119,7 @@ class EntitySpawnSystem(
                         attackDelay = BOMB_ATTACK_DELAY
                         extraAttackRange = 2.5f
                         attackFixtureDestroyDelay = 0.4f
-                        attackType = AttackType.BOMB_ATTACK
+                        attackType = AttackType.BOMB
                         physicOffset = Vector2(0.33f,0f)
                         maskBits = KING_BIT or BOX_BIT or BOMB_BIT or AXE_BIT or GROUND_BIT or FOOT_BIT or PIG_BIT or CANNON_BIT
                     }
@@ -131,7 +131,7 @@ class EntitySpawnSystem(
                         extraAttackRange = 4f
                         attackFixtureDestroyDelay = 5f
                         attackDelay = BOX_ATTACK_DELAY
-                        attackType = AttackType.BOX_ATTACK
+                        attackType = AttackType.BOX
                         entityModel =  EntityModel.PIG_BOX.apply { identify = spawnComp.identify
                         maskBits = KING_BIT or BOX_BIT or BOMB_BIT or AXE_BIT or GROUND_BIT or FOOT_BIT or PIG_BIT or CANNON_BIT
                         }

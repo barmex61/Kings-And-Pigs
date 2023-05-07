@@ -33,6 +33,7 @@ class AttackSystem(
     private val stateComps : ComponentMapper<PlayerStateComponent>,
     private val imageComps : ComponentMapper<ImageComponent>,
     private val playerComps : ComponentMapper<PlayerComponent>,
+    private val attackFixtureComps : ComponentMapper<AttackFixtureComponent>,
     private val textureAtlas : TextureAtlas,
     private val gameStage : Stage,
     private val physicWorld : World
@@ -69,8 +70,6 @@ class AttackSystem(
             }
 
             if (isAttacking) {
-                setImagePosition(boxAttackImage,boxAttackBody, BOX_BIT)
-                setImagePosition(bombAttackImage,bombAttackBody, BOMB_BIT)
 
                 when(attackType){
                     AttackType.MELEE_ATTACK ->{
@@ -81,13 +80,13 @@ class AttackSystem(
                             meleeAttack(attackOnEnemy,entity)
                         }
                     }
-                    AttackType.BOX_ATTACK ->{
+                    AttackType.BOX ->{
                         if (delay == maxDelay)
-                            boxAttack(entity)
+                            boxAttack(entity,maxDelay, attackType)
                     }
-                    AttackType.BOMB_ATTACK ->{
+                    AttackType.BOMB->{
                         if (delay == maxDelay)
-                            bombAttack(entity)
+                            bombAttack(entity,maxDelay,attackType)
                     }
                     else -> Unit
                 }
@@ -98,99 +97,103 @@ class AttackSystem(
             }
             if (delay <= 0f){
                 attackState = AttackState.READY
-                destroyAttackBody(boxAttackBody)
-                destroyAttackBody(bombAttackBody)
-                gameStage.root.removeActor(boxAttackImage)
-                gameStage.root.removeActor(bombAttackImage)
-                boxAttackImage = null
-                bombAttackImage = null
-                bombAttackBody = null
-                boxAttackBody = null
             }
             delay -= deltaTime
         }
     }
 
-    private fun setImagePosition(image:FlipImage?,body: Body?,bit:Short){
-        image?.let {image->
-            body?.let { body->
-                val x = if (bit == BOX_BIT) 0.5f else 1.5f
-                val y = if (bit == BOX_BIT) 0.5f else 1.3f
-                image.setPosition(body.position.x - x,body.position.y - y)
-                image.rotation = MathUtils.radiansToDegrees * body.angle
-            }
-        }
-    }
+
 
     private fun destroyAttackBody(body: Body?){
-        body?.fixtureList?.first()?.let {
+        body?.fixtureList?.firstOrNull()?.let {
             it.filterData.categoryBits = NOTHING_BIT
             body.destroyFixture(it)
             physicWorld.destroyBody(body)
         }
     }
 
-    private fun boxAttack(entity: Entity){
-        if (attackComponent.boxAttackBody== null){
-            attackComponent.boxAttackBody =  physicWorld.body(BodyDef.BodyType.DynamicBody){
-                userData = entity
-                linearDamping = 1.5f
-                val myPosition =  if (!imageComponent.image.flipX){
-                    Vector2(physicComponent.body.position.x - 0.4f,physicComponent.body.position.y +0.4f)
-                }else{
-                    Vector2(physicComponent.body.position.x + 1.3f,physicComponent.body.position.y +0.4f)
-                }
-                position.set(myPosition.x,myPosition.y)
-                box{
-                    density = 100f
-                    userData = PIG_BOX_FIXTURE
-                    filter.categoryBits = BOX_BIT
-                    filter.maskBits = GROUND_BIT or KING_BIT
+    private fun boxAttack(entity: Entity,maxDelay:Float,attackType: AttackType){
+        configureEntity(entity){
+            if (entity !in attackFixtureComps){
+                attackFixtureComps.add(entity){
+                    if (boxPieces == null){
+                        boxPieces = mutableListOf()
+                        textureAtlas.findRegions("box_pieces").forEach {
+                            boxPieces!!.add(
+                                FlipImage(it).apply {
+                                    setSize(0.4f,0.4f)
+                                    setOrigin(Align.center)
+                                }
+                            )
+                        }
+                    }
+                    delay = maxDelay
+                    this.maxDelay = delay
+                    this.attackType = attackType
+                    imagePos.set(0.5f,0.5f)
+                    attackBody =  physicWorld.body(BodyDef.BodyType.DynamicBody){
+                        userData = entity
+                        linearDamping = 1.5f
+                        val myPosition =  if (!imageComponent.image.flipX){
+                            Vector2(physicComponent.body.position.x - 0.4f,physicComponent.body.position.y +0.4f)
+                        }else{
+                            Vector2(physicComponent.body.position.x + 1.3f,physicComponent.body.position.y +0.4f)
+                        }
+                        position.set(myPosition.x,myPosition.y)
+                        box{
+                            density = 100f
+                            userData = PIG_BOX_FIXTURE
+                            filter.categoryBits = BOX_BIT
+                            filter.maskBits = GROUND_BIT or KING_BIT
+                        }
+                    }
+                    attackImage =  FlipImage(textureAtlas.findRegion("box_idle"),false).apply{
+                        setSize(1f,1f)
+                        setOrigin(Align.center)
+                        setPosition(attackBody!!.position.x - 0.5f,attackBody!!.position.y - 0.5f)
+                    }
+                    val diffX = playerBodyPos!!.x - physicComponent.body.position.x
+                    val diffY = playerBodyPos!!.y - physicComponent.body.position.y
+                    attackBody!!.applyLinearImpulse(Vector2(diffX*200f,diffY*600f),attackBody!!.worldCenter + (0f..1f).random(),true)
                 }
             }
-            if (attackComponent.boxAttackImage == null){
-                attackComponent.boxAttackImage =  FlipImage(textureAtlas.findRegion("box_idle"),false).apply{
-                    setSize(1f,1f)
-                    setOrigin(Align.center)
-                    setPosition(attackComponent.boxAttackBody!!.position.x - 0.5f,attackComponent.boxAttackBody!!.position.y - 0.5f)
-                }
-                gameStage.addActor(attackComponent.boxAttackImage!!)
-            }
-            val diffX = playerBodyPos!!.x - physicComponent.body.position.x
-            val diffY = playerBodyPos!!.y - physicComponent.body.position.y
-            attackComponent.boxAttackBody!!.applyLinearImpulse(Vector2(diffX*200f,diffY*600f),attackComponent.boxAttackBody!!.worldCenter + (0f..1f).random(),true)
         }
     }
 
-    private fun bombAttack(entity: Entity){
-        if (attackComponent.bombAttackBody == null){
-            attackComponent.bombAttackBody =  physicWorld.body(BodyDef.BodyType.DynamicBody){
-                userData = entity
-                linearDamping = 1f
-                val myPosition =  if (!imageComponent.image.flipX){
-                    Vector2(physicComponent.body.position.x - 0.4f,physicComponent.body.position.y +0.4f)
-                }else{
-                    Vector2(physicComponent.body.position.x + 1.3f,physicComponent.body.position.y +0.4f)
-                }
-                position.set(myPosition.x,myPosition.y)
-                box(0.8f,0.8f){
-                    density = 50f
-                    userData = PIG_BOMB_FIXTURE
-                    filter.categoryBits = BOMB_BIT
-                    filter.maskBits = GROUND_BIT or KING_BIT
+    private fun bombAttack(entity: Entity,maxDelay : Float,attackType : AttackType){
+        configureEntity(entity){
+            if (entity !in attackFixtureComps){
+                attackFixtureComps.add(entity){
+                    delay = maxDelay
+                    this.maxDelay = delay
+                    this.attackType = attackType
+                    imagePos.set(1.625f,1.5f)
+                    attackBody =  physicWorld.body(BodyDef.BodyType.DynamicBody){
+                        userData = entity
+                        linearDamping = 1f
+                        fixedRotation = true
+                        val myPosition =  if (!imageComponent.image.flipX){
+                            Vector2(physicComponent.body.position.x - 0.4f,physicComponent.body.position.y +0.4f)
+                        }else{
+                            Vector2(physicComponent.body.position.x + 1.5f,physicComponent.body.position.y +0.6f)
+                        }
+                        position.set(myPosition.x,myPosition.y)
+                        box(0.8f,0.8f){
+                            density = 50f
+                            userData = PIG_BOMB_FIXTURE
+                            filter.categoryBits = BOMB_BIT
+                            filter.maskBits = GROUND_BIT or KING_BIT
+                        }
+                    }
+                    attackImage =  FlipImage(textureAtlas.findRegion("bomb_idle"),false).apply{
+                        setPosition(attackBody!!.position.x - imagePos.x,attackBody!!.position.y - imagePos.y)
+                        setSize(3.25f,3.5f)
+                    }
+                    val diffX = playerBodyPos!!.x - physicComponent.body.position.x
+                    val diffY = playerBodyPos!!.y - physicComponent.body.position.y
+                    attackBody!!.applyLinearImpulse(Vector2(diffX*50f,diffY*100f),attackBody!!.worldCenter  ,true)
                 }
             }
-            if (attackComponent.bombAttackImage == null){
-                attackComponent.bombAttackImage =  FlipImage(textureAtlas.findRegion("bomb_idle"),false).apply{
-                    setSize(3f,3f)
-                    setOrigin(Align.center)
-                    setPosition(attackComponent.bombAttackBody!!.position.x - 1.5f,attackComponent.bombAttackBody!!.position.y - 1.3f)
-                }
-                gameStage.addActor(attackComponent.bombAttackImage!!)
-            }
-            val diffX = playerBodyPos!!.x - physicComponent.body.position.x
-            val diffY = playerBodyPos!!.y - physicComponent.body.position.y
-            attackComponent.bombAttackBody!!.applyLinearImpulse(Vector2(diffX*50f,diffY*100f),attackComponent.bombAttackBody!!.worldCenter ,true)
         }
     }
 
@@ -218,8 +221,8 @@ class AttackSystem(
                 }
             }
         }else if (attackComponent.attackOnEnemy){
-            attackComponent.meleeAttackBody!!.fixtureList.first().run {
-                filterData.categoryBits = NOTHING_BIT
+            attackComponent.meleeAttackBody!!.fixtureList.firstOrNull()?.run {
+                filterData!!.categoryBits = NOTHING_BIT
                 attackComponent.meleeAttackBody!!.destroyFixture(this)
                 physicWorld.destroyBody(attackComponent.meleeAttackBody!!)
                 attackComponent.meleeAttackBody = null

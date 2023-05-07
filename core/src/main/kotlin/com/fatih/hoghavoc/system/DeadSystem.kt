@@ -15,6 +15,7 @@ class DeadSystem(
     private val animComps : ComponentMapper<AnimationComponent>,
     private val physicComps : ComponentMapper<PhysicComponent>,
     private val attackComps : ComponentMapper<AttackComponent>,
+    private val attackFixtureComps : ComponentMapper<AttackFixtureComponent>,
     private val gameStage:Stage,
     private val physicWorld : World
 ) : IteratingSystem(){
@@ -28,16 +29,9 @@ class DeadSystem(
         deadComponent.run {
             if (animationComponent.isAnimationDone(AnimationType.DEAD,Animation.PlayMode.NORMAL)){
                 attackComps.getOrNull(entity)?.run {
-                    boxAttackBody?.let {
-                        physicWorld.destroyBody(it)
-                    }
                     meleeAttackBody?.let {
                         physicWorld.destroyBody(it)
                     }
-                    boxAttackImage?.let {
-                        gameStage.root.removeActor(it)
-                    }
-                    boxAttackImage = null
                 }
                 physicWorld.destroyBody(physicComps[entity].body)
                 world.remove(entity)

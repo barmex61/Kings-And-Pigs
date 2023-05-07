@@ -53,28 +53,28 @@ bomb_idle
   orig: 52, 56
   offset: 0, 0
   index: -1
-bonb_on
+bomb_on
   rotate: false
   xy: 802, 78
   size: 52, 56
   orig: 52, 56
   offset: 0, 0
   index: 2
-bonb_on
+bomb_on
   rotate: false
   xy: 1016, 198
   size: 52, 56
   orig: 52, 56
   offset: 0, 0
   index: 1
-bonb_on
+bomb_on
   rotate: false
   xy: 1124, 198
   size: 52, 56
   orig: 52, 56
   offset: 0, 0
   index: 3
-bonb_on
+bomb_on
   rotate: false
   xy: 1286, 198
   size: 52, 56

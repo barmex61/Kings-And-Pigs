@@ -9,7 +9,7 @@ enum class AttackState {
 }
 
 enum class AttackType{
-    BOX_ATTACK,FIRE_ATTACK,BOMB_ATTACK,MELEE_ATTACK
+    BOX,FIRE,BOMB,MELEE_ATTACK
 }
 
 class AttackComponent(
@@ -22,11 +22,6 @@ class AttackComponent(
     var attackOnEnemy : Boolean = true,
     var attackType : AttackType = AttackType.MELEE_ATTACK,
     var meleeAttackBody : Body? = null,
-    var boxAttackBody : Body? = null,
-    var boxAttackImage : FlipImage? = null,
-    var bombAttackBody : Body? = null,
-    var bombAttackImage : FlipImage? = null
-
 ){
 
     val isReady : Boolean
