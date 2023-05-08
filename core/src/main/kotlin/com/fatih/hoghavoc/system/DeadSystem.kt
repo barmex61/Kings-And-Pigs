@@ -16,8 +16,6 @@ class DeadSystem(
     private val animComps : ComponentMapper<AnimationComponent>,
     private val physicComps : ComponentMapper<PhysicComponent>,
     private val attackComps : ComponentMapper<AttackComponent>,
-    private val attackFixtureComps : ComponentMapper<AttackFixtureComponent>,
-    private val gameStage:Stage,
     private val physicWorld : World
 ) : IteratingSystem(){
 

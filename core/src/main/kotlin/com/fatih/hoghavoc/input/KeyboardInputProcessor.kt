@@ -130,16 +130,20 @@ class KeyboardInputProcessor(
 
     override fun touchDragged(event: InputEvent?, x: Float, y: Float, pointer: Int) {
         if (event!!.target.javaClass == Touchpad::class.java){
-            playerCos = scaleValue(x)
-            playerSin = scaleValue(y)
+            playerCos = scaleValue(x,false)
+            playerSin = scaleValue(y,true)
             updatePlayerMovement(isDragged = true,isAttack = false)
         }
 
     }
 
-    private fun scaleValue(value: Float): Float {
-        val clampedValue = value.coerceIn(0.6f, 1.9f)
-        return 2f * (clampedValue - 0.6f) / (1.9f - 0.6f) - 1f
+    private fun scaleValue(value: Float,sin:Boolean): Float {
+        val clampedValue = value.coerceIn(0.6f, 2.5f)
+        return if (sin) {
+            if (clampedValue == 2.5f) 1f else 0f
+        } else {
+            2f * (clampedValue - 0.6f) / (2.5f - 0.6f) - 1f
+        }
     }
 
     override fun touchUp(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int) {

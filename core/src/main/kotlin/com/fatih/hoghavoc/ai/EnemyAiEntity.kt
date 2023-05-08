@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.g2d.Animation
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Stage
+import com.badlogic.gdx.utils.TimeUtils
 import com.fatih.hoghavoc.component.*
 import com.fatih.hoghavoc.utils.DEFAULT_FRAME_DURATION
 import com.github.quillraven.fleks.ComponentMapper
@@ -43,6 +44,7 @@ class EnemyAiEntity(
     private var distanceBetweenItself = 0f
     private var playerPhysicComponent : PhysicComponent?= null
     private var playerEntity : Entity? = null
+    private var time = TimeUtils.millis()
 
     val playerTarget : Vector2 = vec2()
 
@@ -70,6 +72,7 @@ class EnemyAiEntity(
     }
 
     fun inRange(range: Float, targetLocation: Vector2): Boolean {
+        time = TimeUtils.millis()
         moveComponent?.let {
             if (moveComponent.sin > 0f){
                 moveComponent.sin  -= 0.2f
@@ -98,8 +101,9 @@ class EnemyAiEntity(
                 yDiff = physicComponent.body.position.y - movingBodyPos.y
                 distanceBetweenItself = kotlin.math.sqrt(xDiff.pow(2)+yDiff.pow(2))
                 if (distanceBetweenItself <= 0.00008f){
-                    if (moveComponent.sin<=0f ){
+                    if (moveComponent.sin<=0f && time - moveComponent.timeBetweenJumps >= 1500L ){
                         moveComponent.sin = 1f
+                        moveComponent.timeBetweenJumps = TimeUtils.millis()
                     }
                 }
                 movingBodyPos.set(

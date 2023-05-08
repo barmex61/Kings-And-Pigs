@@ -6,9 +6,9 @@ filter: Nearest, Nearest
 repeat: none
 attack
   rotate: false
-  xy: 1649, 94
-  size: 28, 31
-  orig: 28, 31
+  xy: 1615, 89
+  size: 33, 36
+  orig: 33, 36
   offset: 0, 0
   index: -1
 big_dia_hit
@@ -20,60 +20,60 @@ big_dia_hit
   index: 1
 big_dia_hit
   rotate: false
-  xy: 1740, 111
+  xy: 1745, 111
   size: 18, 14
   orig: 18, 14
   offset: 0, 0
   index: 0
 big_dia_idle
   rotate: false
-  xy: 1700, 111
+  xy: 1705, 111
   size: 18, 14
   orig: 18, 14
   offset: 0, 0
   index: 5
 big_dia_idle
   rotate: false
-  xy: 1720, 111
+  xy: 1725, 111
   size: 18, 14
   orig: 18, 14
   offset: 0, 0
   index: 2
 big_dia
   rotate: false
-  xy: 1720, 111
+  xy: 1725, 111
   size: 18, 14
   orig: 18, 14
   offset: 0, 0
   index: -1
 big_dia_idle
   rotate: false
-  xy: 1720, 111
-  size: 18, 14
-  orig: 18, 14
-  offset: 0, 0
-  index: 1
-big_dia_idle
-  rotate: false
-  xy: 1720, 111
-  size: 18, 14
-  orig: 18, 14
-  offset: 0, 0
-  index: 4
-big_dia_idle
-  rotate: false
-  xy: 1720, 111
+  xy: 1725, 111
   size: 18, 14
   orig: 18, 14
   offset: 0, 0
   index: 0
 big_dia_idle
   rotate: false
-  xy: 1720, 111
+  xy: 1725, 111
   size: 18, 14
   orig: 18, 14
   offset: 0, 0
   index: 3
+big_dia_idle
+  rotate: false
+  xy: 1725, 111
+  size: 18, 14
+  orig: 18, 14
+  offset: 0, 0
+  index: 1
+big_dia_idle
+  rotate: false
+  xy: 1725, 111
+  size: 18, 14
+  orig: 18, 14
+  offset: 0, 0
+  index: 4
 big_dia_idle
   rotate: false
   xy: 42, 2
@@ -111,7 +111,7 @@ big_hearth_hit
   index: 1
 big_hearth_hit
   rotate: false
-  xy: 1760, 111
+  xy: 1765, 111
   size: 18, 14
   orig: 18, 14
   offset: 0, 0
@@ -167,7 +167,7 @@ big_hearth_idle
   index: 5
 big_hearth_idle
   rotate: false
-  xy: 1780, 111
+  xy: 1785, 111
   size: 18, 14
   orig: 18, 14
   offset: 0, 0
@@ -202,7 +202,7 @@ hud_bg
   index: -1
 king_pig_portre
   rotate: false
-  xy: 1679, 104
+  xy: 1684, 104
   size: 19, 21
   orig: 19, 21
   offset: 0, 0
@@ -265,7 +265,7 @@ number
   index: 2
 number
   rotate: false
-  xy: 1679, 94
+  xy: 1684, 94
   size: 6, 8
   orig: 6, 8
   offset: 0, 0
@@ -286,7 +286,7 @@ number
   index: 9
 number
   rotate: false
-  xy: 1820, 117
+  xy: 1825, 117
   size: 6, 8
   orig: 6, 8
   offset: 0, 0
@@ -339,7 +339,14 @@ small_dia
   size: 18, 14
   orig: 18, 14
   offset: 0, 0
-  index: 1
+  index: 3
+small_dia
+  rotate: false
+  xy: 1062, 65
+  size: 18, 14
+  orig: 18, 14
+  offset: 0, 0
+  index: 2
 small_dia
   rotate: false
   xy: 1062, 65
@@ -353,14 +360,7 @@ small_dia
   size: 18, 14
   orig: 18, 14
   offset: 0, 0
-  index: 3
-small_dia
-  rotate: false
-  xy: 1062, 65
-  size: 18, 14
-  orig: 18, 14
-  offset: 0, 0
-  index: 2
+  index: 1
 small_dia
   rotate: false
   xy: 1485, 43
@@ -377,7 +377,7 @@ small_dia
   index: 7
 small_dia
   rotate: false
-  xy: 1800, 111
+  xy: 1805, 111
   size: 18, 14
   orig: 18, 14
   offset: 0, 0
@@ -423,13 +423,6 @@ small_hearth_idle
   size: 18, 14
   orig: 18, 14
   offset: 0, 0
-  index: 2
-small_hearth_idle
-  rotate: false
-  xy: 866, 43
-  size: 18, 14
-  orig: 18, 14
-  offset: 0, 0
   index: 4
 small_hearth_idle
   rotate: false
@@ -438,6 +431,13 @@ small_hearth_idle
   orig: 18, 14
   offset: 0, 0
   index: 1
+small_hearth_idle
+  rotate: false
+  xy: 866, 43
+  size: 18, 14
+  orig: 18, 14
+  offset: 0, 0
+  index: 2
 small_hearth_idle
   rotate: false
   xy: 1082, 65
@@ -482,7 +482,7 @@ text_label
   index: -1
 touchpad_knob
   rotate: false
-  xy: 1615, 93
+  xy: 1650, 93
   size: 32, 32
   orig: 32, 32
   offset: 0, 0

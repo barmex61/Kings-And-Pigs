@@ -37,6 +37,7 @@ class EnemyHud(
         addActor(enemyPortre)
     }
 
+
     fun reduceHealthBar(percentage: Float) {
         small_hp_bar.clearActions()
         small_hp_bar.addAction(

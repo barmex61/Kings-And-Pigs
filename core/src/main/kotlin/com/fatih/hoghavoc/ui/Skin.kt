@@ -40,15 +40,18 @@ fun loadSkin(){
                 data.markupEnabled = true
             }
         }
-
+        imageButton {
+            imageUp = skin[Drawables.ATTACK]
+            imageDown = skin[Drawables.ATTACK]
+        }
         touchpad{
             background = skin[Drawables.TOUCHPAD_BG].apply {
-                minWidth = 2.4f
-                minHeight = 2.4f
+                minWidth = 60f
+                minHeight = 60f
             }
             knob = skin[Drawables.TOUCHPAD_KNOB].apply {
-                minWidth = 1.2f
-                minHeight = 1.2f
+                minWidth = 25f
+                minHeight = 25f
             }
         }
         label(Labels.NOTHING.skinKey){

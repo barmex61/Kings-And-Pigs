@@ -52,7 +52,7 @@ class EntitySpawnSystem(
                     maskBits = KING_PIG_BIT or CANNON_BIT or PIG_BIT or GROUND_BIT or BOX_BIT or COLLISION_DETECT_BIT or ENEMY_AXE_BIT or BOMB_BIT,
                     speedScaling = 0.5f,
                     lifeScaling = 1f,
-                    maxLife = 50f,
+                    maxLife = 5000f,
                     attackFixtureDestroyDelay = 0.4f
                 )
             }
@@ -355,6 +355,7 @@ class EntitySpawnSystem(
                 }
             }
         }
+
         world.remove(entity)
     }
 
@@ -407,9 +408,9 @@ class EntitySpawnSystem(
                     val identify = mapObject.properties.get("identify")?.let {
                         it as String
                     }
-                    (1..5).forEach {
-                        world.entity {
-                            add<SpawnComponent>{
+
+                    world.entity {
+                        add<SpawnComponent>{
                                 name = objName
                                 this.identify = identify?: ""
                                 this.moveRange = moveRange?:0f
@@ -420,7 +421,7 @@ class EntitySpawnSystem(
                             }
                         }
                     }
-                }
+
                 val collisionLayer = event.map.layer("CollisionLayer")
                 collisionLayer.objects.forEach { mapObject ->
                      createCollisionObjects(mapObject)

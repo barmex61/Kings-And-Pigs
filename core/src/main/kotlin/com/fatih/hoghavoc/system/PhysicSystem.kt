@@ -30,7 +30,7 @@ class PhysicSystem(
     private val aiComps : ComponentMapper<AiComponent>,
     private val enemyComps : ComponentMapper<EnemyComponent>,
     private val gameStage : Stage
-) : IteratingSystem(interval = Fixed(1/60f)) , ContactListener{
+) : IteratingSystem(interval = Fixed(1/144f)) , ContactListener{
 
     private lateinit var physicComponent: PhysicComponent
     private lateinit var imageComponent: ImageComponent
