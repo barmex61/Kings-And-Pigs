@@ -11,6 +11,7 @@ import com.fatih.hoghavoc.utils.*
 import com.fatih.hoghavoc.actors.FlipImage
 import com.fatih.hoghavoc.component.*
 import com.fatih.hoghavoc.events.MapChangeEvent
+import com.fatih.hoghavoc.events.RespawnPlayer
 import com.github.quillraven.fleks.AllOf
 import com.github.quillraven.fleks.ComponentMapper
 import com.github.quillraven.fleks.Entity
@@ -35,7 +36,6 @@ class EntitySpawnSystem(
     private lateinit var spawnComponent: SpawnComponent
     private val spawnCache = hashMapOf<Pair<String,Float>,SpawnConfig>()
     private lateinit var physicComponent: PhysicComponent
-    private var i = 0
 
     private fun getSpawnConfig(spawnComp : SpawnComponent) : SpawnConfig = spawnCache.getOrPut(Pair(spawnComp.name,spawnComp.moveRange)){
         when(spawnComp.name){
@@ -385,6 +385,18 @@ class EntitySpawnSystem(
 
     override fun handle(event: Event): Boolean {
         return when(event){
+            is RespawnPlayer ->{
+                world.entity {
+                    add<SpawnComponent>{
+                        name = "King"
+                        location.set(
+                            5f,
+                            5f
+                        )
+                    }
+                }
+                true
+            }
             is MapChangeEvent ->{
                 val objectLayer = event.map.layer("EntityLayer")
                 objectLayer.objects.forEach {mapObject->
@@ -395,15 +407,17 @@ class EntitySpawnSystem(
                     val identify = mapObject.properties.get("identify")?.let {
                         it as String
                     }
-                    world.entity {
-                        add<SpawnComponent>{
-                            name = objName
-                            this.identify = identify?: ""
-                            this.moveRange = moveRange?:0f
-                            location.set(
-                                mapObject.x * UNIT_SCALE,
-                                mapObject.y * UNIT_SCALE
-                            )
+                    (1..5).forEach {
+                        world.entity {
+                            add<SpawnComponent>{
+                                name = objName
+                                this.identify = identify?: ""
+                                this.moveRange = moveRange?:0f
+                                location.set(
+                                    mapObject.x * UNIT_SCALE,
+                                    mapObject.y * UNIT_SCALE
+                                )
+                            }
                         }
                     }
                 }

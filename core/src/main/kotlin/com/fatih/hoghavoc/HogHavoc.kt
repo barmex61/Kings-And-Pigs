@@ -11,22 +11,24 @@ import com.fatih.hoghavoc.events.PauseEvent
 import com.fatih.hoghavoc.screen.GameScreen
 import com.fatih.hoghavoc.ui.disposeSkin
 import com.fatih.hoghavoc.ui.loadSkin
+import com.fatih.hoghavoc.utils.PerformanceProfiler
 import ktx.app.KtxGame
 import ktx.app.KtxScreen
 import ktx.app.clearScreen
 import ktx.assets.disposeSafely
 
 class HogHavoc : KtxGame<KtxScreen>() , EventListener{
-    private val spriteBatch : Batch by lazy {
-        SpriteBatch()
-    }
-    private val gameStage by lazy { Stage(ExtendViewport(16f,9f),spriteBatch) }
-    private val uiStage by lazy { Stage(ExtendViewport(400f,225f),spriteBatch) }
+    private lateinit var performanceProfiler : PerformanceProfiler
+    private val gameStage by lazy { Stage(ExtendViewport(16f,9f),performanceProfiler.spriteBatch) }
+    private val uiStage by lazy { Stage(ExtendViewport(400f,225f),performanceProfiler.spriteBatch) }
     private var pause = false
     private var dt = 0f
 
     override fun create() {
         loadSkin()
+        performanceProfiler = PerformanceProfiler().apply {
+            this.create()
+        }
         gameStage.addListener(this)
         addScreen(GameScreen(gameStage,uiStage))
         setScreen<GameScreen>()
@@ -59,7 +61,8 @@ class HogHavoc : KtxGame<KtxScreen>() , EventListener{
 
     override fun dispose() {
         disposeSkin()
-        spriteBatch.disposeSafely()
+        performanceProfiler.dispose()
+        //spriteBatch.disposeSafely()
         gameStage.disposeSafely()
         uiStage.disposeSafely()
     }

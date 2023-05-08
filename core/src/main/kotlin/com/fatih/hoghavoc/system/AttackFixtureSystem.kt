@@ -8,11 +8,14 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.Body
 import com.badlogic.gdx.physics.box2d.BodyDef
 import com.badlogic.gdx.physics.box2d.World
+import com.badlogic.gdx.scenes.scene2d.Event
+import com.badlogic.gdx.scenes.scene2d.EventListener
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.fatih.hoghavoc.actors.FlipImage
 import com.fatih.hoghavoc.component.AttackFixtureComponent
 import com.fatih.hoghavoc.component.AttackType
+import com.fatih.hoghavoc.events.DestroyBoxBodies
 import com.fatih.hoghavoc.utils.BOX_BIT
 import com.fatih.hoghavoc.utils.GROUND_BIT
 import com.fatih.hoghavoc.utils.KING_BIT
@@ -37,16 +40,18 @@ class AttackFixtureSystem(
     private val physicWorld: World,
     private val gameStage : Stage,
     private val textureAtlas: TextureAtlas
-) : IteratingSystem(){
+) : IteratingSystem() , EventListener{
 
     private lateinit var attackFixtureComponent: AttackFixtureComponent
     private val animHashMap : HashMap<String,Animation<TextureRegionDrawable>> = hashMapOf()
+    private var shouldDestroy = false
+
 
     override fun onTickEntity(entity: Entity) {
         attackFixtureComponent = attackFixtureComps[entity]
         attackFixtureComponent.run {
             delay -= deltaTime
-            println(physicWorld.bodyCount)
+            hitPlayer = shouldDestroy
             if (delay> 0f){
                 attackImage?.let {image->
                     attackBody?.let { body->
@@ -55,7 +60,8 @@ class AttackFixtureSystem(
                     }
                 }
             }
-            if (delay <= 0f){
+            if (delay <= 0f || hitPlayer){
+
                 if (animation == null){
                     animation = getAnimation(animationStr)
                 }
@@ -78,7 +84,7 @@ class AttackFixtureSystem(
                 when(animationStr){
 
                     "bomb_on"->{
-                        if (animation!!.isAnimationFinished(stateTimer)){
+                        if (animation!!.isAnimationFinished(stateTimer) && !destroyBodies){
                             animationStr = "bomb_explode"
                             stateTimer = 0f
                             animation = getAnimation(animationStr)
@@ -86,11 +92,10 @@ class AttackFixtureSystem(
                     }
 
                     "bomb_explode"->{
-                        if (animation!!.isAnimationFinished(stateTimer)){
+                        if (animation!!.isAnimationFinished(stateTimer) && !destroyBodies){
                             destroyBodies = true
-                            destroyBody(attackBody)
                             gameStage.root.removeActor(attackImage)
-                        } else if (stateTimer > 0.15f && explodeBody == null){
+                        } else if (stateTimer > 0.15f && explodeBody == null && !destroyBodies){
                             explodeBody = physicWorld.body {
                                 position.set(attackBody!!.position)
                                 circle(1.5f, position = Vector2(0f,-0.3f)){
@@ -105,9 +110,9 @@ class AttackFixtureSystem(
                     }
 
                     "box_pieces"->{
-                        if (animation!!.isAnimationFinished(stateTimer)){
+                        if (animation!!.isAnimationFinished(stateTimer) && !destroyBodies){
                             destroyBodies = true
-                        }else if (boxPiecesBody == null){
+                        }else if (boxPiecesBody == null && !destroyBodies){
                             val posList = arrayOf(
                                 Vector2(0.5f, 0.5f),
                                 Vector2(-0.5f, 0.5f),
@@ -141,20 +146,15 @@ class AttackFixtureSystem(
                         }
                     }
                 }
-
                 if (destroyBodies){
+                    shouldDestroy = false
                     destroyBody(explodeBody)
                     destroyBody(attackBody)
-                    if (boxPieces != null){
-                        boxPieces!!.forEach {
-                            gameStage.root.removeActor(it)
-                        }
-                        boxPieces = null
-                    }
                     if (boxPiecesBody != null){
                         boxPiecesBody!!.forEach {body->
                             destroyBody(body)
                         }
+                        boxPiecesBody = null
                     }
                     attackBody = null
                     configureEntity(entity){
@@ -177,7 +177,17 @@ class AttackFixtureSystem(
 
     private fun getAnimation(animationStr: String) : Animation<TextureRegionDrawable> = animHashMap.getOrPut(animationStr){
         val frames = textureAtlas.findRegions(animationStr)
-        Animation(0.25f,frames.map { TextureRegionDrawable(it) },PlayMode.NORMAL)
+        Animation(0.1f,frames.map { TextureRegionDrawable(it) },PlayMode.NORMAL)
+    }
+
+    override fun handle(event: Event?): Boolean {
+        return when(event){
+            is DestroyBoxBodies ->{
+                shouldDestroy = true
+                true
+            }
+            else -> false
+        }
     }
 
     companion object{

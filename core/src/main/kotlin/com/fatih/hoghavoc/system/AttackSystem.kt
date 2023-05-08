@@ -51,6 +51,7 @@ class AttackSystem(
     private val enemyChainShape : FloatArray = floatArrayOf(0.1f,-0.1f,-0.1f,0.1f,-0.3f,0.3f,-0.4f,0.6f,-0.4f,0.8f,-0.1f,1.1f,0.1f,-0.1f)
     private val enemyChainShapeFlipped : FloatArray = floatArrayOf(1.3f,-0.1f,1.5f,0.1f,1.7f,0.3f,1.8f,0.6f,1.8f,0.8f,1.5f,1.1f,1.3f,-0.1f)
 
+
     override fun onTickEntity(entity: Entity) {
         attackComponent = attackComps[entity]
         animationComponent = animComps[entity]
@@ -153,7 +154,7 @@ class AttackSystem(
                         setPosition(attackBody!!.position.x - 0.5f,attackBody!!.position.y - 0.5f)
                     }
                     val diffX = playerBodyPos!!.x - physicComponent.body.position.x
-                    val diffY = playerBodyPos!!.y - physicComponent.body.position.y
+                    val diffY = (playerBodyPos!!.y - physicComponent.body.position.y).coerceAtLeast(0.1f)
                     attackBody!!.applyLinearImpulse(Vector2(diffX*200f,diffY*600f),attackBody!!.worldCenter + (0f..1f).random(),true)
                 }
             }

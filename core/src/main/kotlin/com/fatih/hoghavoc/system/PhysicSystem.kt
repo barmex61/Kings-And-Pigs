@@ -12,8 +12,10 @@ import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.utils.TimeUtils
 import com.fatih.hoghavoc.utils.*
 import com.fatih.hoghavoc.component.*
+import com.fatih.hoghavoc.events.DestroyBoxBodies
 import com.fatih.hoghavoc.events.EnemyHitPlayerEvent
 import com.fatih.hoghavoc.events.PlayerHitEnemyEvent
+import com.fatih.hoghavoc.system.AttackSystem.Companion.PIG_BOX_FIXTURE
 import com.github.quillraven.fleks.*
 import kotlin.experimental.or
 
@@ -39,6 +41,7 @@ class PhysicSystem(
     private var axeBody : Body? = null
     private var impulseTimer : Long = TimeUtils.millis()
     private lateinit var fixture: Fixture
+
 
     init {
         physicWorld.setContactListener(this)
@@ -161,7 +164,19 @@ class PhysicSystem(
 
         val cDef = fixtureA.filterData.categoryBits or fixtureB.filterData.categoryBits
         when(cDef){
-            BOX_BIT or GROUND_BIT -> {
+            BOX_BIT or KING_BIT -> {
+                var boxEntity : Entity?= null
+                if (fixtureA.filterData.categoryBits == KING_BIT && fixtureB.userData == PIG_BOX_FIXTURE){
+                    kingEntity = fixtureA.userData as Entity
+                    boxEntity = fixtureB.body.userData as Entity
+                }else if (fixtureB.filterData.categoryBits == KING_BIT && fixtureA.userData == PIG_BOX_FIXTURE){
+                    kingEntity = fixtureB.body.userData as Entity
+                    boxEntity = fixtureA.body.userData as Entity
+                }
+                gameStage.run {
+                    fireEvent(EnemyHitPlayerEvent(kingEntity!!,boxEntity))
+                    fireEvent(DestroyBoxBodies())
+                }
             }
             FOOT_BIT or GROUND_BIT ->{
                 kingEntity = getEntity(fixtureA,fixtureB, FOOT_BIT,null)

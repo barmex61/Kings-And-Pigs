@@ -21,6 +21,7 @@ import com.github.quillraven.fleks.ComponentMapper
 import com.github.quillraven.fleks.Entity
 import com.github.quillraven.fleks.IteratingSystem
 import ktx.assets.disposeSafely
+import kotlin.math.abs
 
 @AllOf([LifeComponent::class])
 class LifeSystem(
@@ -31,6 +32,7 @@ class LifeSystem(
     private val attackComps : ComponentMapper<AttackComponent>,
     private val moveComps : ComponentMapper<MoveComponent>,
     private val playerComps : ComponentMapper<PlayerComponent>,
+    private val attackFixtureComps : ComponentMapper<AttackFixtureComponent>,
     private val gameStage: Stage
 ) : IteratingSystem() , EventListener{
 
@@ -126,10 +128,19 @@ class LifeSystem(
             }
 
             is EnemyHitPlayerEvent -> {
-                animComps.getOrNull(event.playerEntity)?.nextAnimation(AnimationType.HIT,Animation.PlayMode.NORMAL, DEFAULT_FRAME_DURATION)
-                lifeComps.getOrNull(event.playerEntity)?.let{lifeComponent->
-                    lifeComponent.takeDamage= attackComps[event.enemyEntity].let {
-                        if (Math.random() < it.criticalHitChance) it.attackDamage.random().toFloat() * 2 else it.attackDamage.random().toFloat()
+                event.enemyEntity?.let {
+                    animComps.getOrNull(event.playerEntity)?.nextAnimation(AnimationType.HIT,Animation.PlayMode.NORMAL, DEFAULT_FRAME_DURATION)
+                    lifeComps.getOrNull(event.playerEntity)?.let{lifeComponent->
+                        lifeComponent.takeDamage= attackComps.getOrNull(event.enemyEntity)?.let {
+                            when(it.attackType){
+                                AttackType.BOX->{
+
+                                    abs((attackFixtureComps[event.enemyEntity].attackBody?.linearVelocity?.x?:0f) +
+                                    (attackFixtureComps[event.enemyEntity].attackBody?.linearVelocity?.y?:0f))*5f
+                                }
+                                else -> it.attackDamage.random().toFloat()
+                            }
+                        }?: 0f
                     }
                 }
                 true

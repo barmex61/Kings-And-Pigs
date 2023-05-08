@@ -2,12 +2,14 @@ package com.fatih.hoghavoc.input
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
+import com.badlogic.gdx.scenes.scene2d.InputEvent
+import com.badlogic.gdx.scenes.scene2d.InputListener
 import com.badlogic.gdx.scenes.scene2d.Stage
-import com.fatih.hoghavoc.component.AttackComponent
-import com.fatih.hoghavoc.component.AttackState
-import com.fatih.hoghavoc.component.MoveComponent
-import com.fatih.hoghavoc.component.PlayerComponent
+import com.badlogic.gdx.scenes.scene2d.ui.Touchpad
+import com.fatih.hoghavoc.component.*
 import com.fatih.hoghavoc.events.PauseEvent
+import com.fatih.hoghavoc.events.RespawnPlayer
+import com.fatih.hoghavoc.screen.GameScreen.Companion.inputMultiplexer
 import com.fatih.hoghavoc.utils.fireEvent
 import com.github.quillraven.fleks.ComponentMapper
 import com.github.quillraven.fleks.World
@@ -17,8 +19,9 @@ class KeyboardInputProcessor(
     world: World,
     private val moveComps : ComponentMapper<MoveComponent> = world.mapper(),
     private val attackComps : ComponentMapper<AttackComponent> = world.mapper(),
-    private val gameStage : Stage
-) : KtxInputAdapter {
+    private val gameStage : Stage,
+    private val alphaChangeLambda : (String,Boolean) -> Unit
+) : KtxInputAdapter , InputListener() {
 
     private val playerEntities = world.family(allOf = arrayOf(PlayerComponent::class))
     private var playerSin = 0f
@@ -27,24 +30,46 @@ class KeyboardInputProcessor(
     private var paused = false
 
     init {
-        Gdx.input.inputProcessor = this
+        inputMultiplexer.addProcessor(this)
+        Gdx.input.inputProcessor = inputMultiplexer
     }
 
     private fun Int.isGameKey() = this == Input.Keys.UP || this == Input.Keys.RIGHT || this == Input.Keys.LEFT || this == Input.Keys.SHIFT_LEFT || this == Input.Keys.SPACE
 
-    private fun updatePlayerMovement(){
-        playerEntities.forEach {player->
-            moveComps[player].run {
-                cos = playerCos
-                sin = playerSin
+    private fun updatePlayerMovement(isDragged : Boolean = false,isAttack : Boolean = false){
+        if (isDragged){
+            playerEntities.forEach {player->
+                moveComps[player].run {
+                    cos = playerCos
+                    sin = playerSin
+                }
             }
+        }
+        if (isAttack){
+            playerEntities.forEach {player->
             attackComps[player].run {
                 if (playerAttack){
                     attackState = AttackState.ATTACK
                     playerAttack = false
+                  }
+               }
+            }
+        }
+        if (!isAttack && !isDragged){
+            playerEntities.forEach {player->
+                moveComps[player].run {
+                    cos = playerCos
+                    sin = playerSin
+                }
+                attackComps[player].run {
+                    if (playerAttack){
+                        attackState = AttackState.ATTACK
+                        playerAttack = false
+                    }
                 }
             }
         }
+
     }
 
     override fun keyDown(keycode: Int): Boolean {
@@ -69,6 +94,7 @@ class KeyboardInputProcessor(
         else false
     }
 
+
     override fun keyUp(keycode: Int): Boolean {
         return if (keycode.isGameKey()){
             when(keycode){
@@ -81,4 +107,50 @@ class KeyboardInputProcessor(
         }
         else false
     }
+
+    override fun touchDown(
+        event: InputEvent?,
+        x: Float,
+        y: Float,
+        pointer: Int,
+        button: Int
+    ): Boolean {
+        if (event!!.target.javaClass == Touchpad::class.java){
+            alphaChangeLambda("touchpad",true)
+        }else{
+            playerAttack = true
+            updatePlayerMovement(isDragged = false,isAttack = true)
+            alphaChangeLambda("attack",true)
+            if (playerEntities.isEmpty){
+                gameStage.fireEvent(RespawnPlayer())
+            }
+        }
+        return true
+    }
+
+    override fun touchDragged(event: InputEvent?, x: Float, y: Float, pointer: Int) {
+        if (event!!.target.javaClass == Touchpad::class.java){
+            playerCos = scaleValue(x)
+            playerSin = scaleValue(y)
+            updatePlayerMovement(isDragged = true,isAttack = false)
+        }
+
+    }
+
+    private fun scaleValue(value: Float): Float {
+        val clampedValue = value.coerceIn(0.6f, 1.9f)
+        return 2f * (clampedValue - 0.6f) / (1.9f - 0.6f) - 1f
+    }
+
+    override fun touchUp(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int) {
+        if (event!!.target.javaClass == Touchpad::class.java){
+            playerCos = 0f
+            playerSin = 0f
+            updatePlayerMovement(true)
+        }else{
+            playerAttack = false
+        }
+        alphaChangeLambda("",false)
+    }
+
 }

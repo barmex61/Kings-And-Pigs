@@ -7,12 +7,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable
 import ktx.assets.disposeSafely
 import ktx.scene2d.Scene2DSkin
-import ktx.style.label
-import ktx.style.set
-import ktx.style.skin
+import ktx.style.*
 
 enum class Drawables{
-    LIFE_BAR,KING_PROFILE,BIG_HEARTH,BIG_DIA,SMALL_HEARTH,KING_PORTRE,PIG_PORTRE,
+    LIFE_BAR,KING_PROFILE,BIG_HEARTH,BIG_DIA,SMALL_HEARTH,KING_PORTRE,PIG_PORTRE,TOUCHPAD_KNOB,TOUCHPAD_BG,ATTACK,
     KING_PIG_PORTRE,HUD_BG,HP_BAR,MP_BAR,TEXT_BUBBLE,TEXT_LABEL,HP_BAR_SMALL,MP_BAR_SMALL,STATUS_BAR,TEXT_RECTANGLE
 }
 
@@ -40,6 +38,17 @@ fun loadSkin(){
             skin[font.skinKey] = BitmapFont(Gdx.files.internal(font.fontPath),skin.getRegion(font.atlasRegion)).apply {
                 data.setScale(font.scaling)
                 data.markupEnabled = true
+            }
+        }
+
+        touchpad{
+            background = skin[Drawables.TOUCHPAD_BG].apply {
+                minWidth = 2.4f
+                minHeight = 2.4f
+            }
+            knob = skin[Drawables.TOUCHPAD_KNOB].apply {
+                minWidth = 1.2f
+                minHeight = 1.2f
             }
         }
         label(Labels.NOTHING.skinKey){

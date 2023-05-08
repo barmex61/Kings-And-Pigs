@@ -7,13 +7,11 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer
 import com.badlogic.gdx.scenes.scene2d.Event
 import com.badlogic.gdx.scenes.scene2d.EventListener
 import com.badlogic.gdx.scenes.scene2d.Stage
+import com.badlogic.gdx.utils.TimeUtils
 import com.fatih.hoghavoc.component.ImageComponent
 import com.fatih.hoghavoc.events.MapChangeEvent
 import com.fatih.hoghavoc.utils.UNIT_SCALE
-import com.github.quillraven.fleks.AllOf
-import com.github.quillraven.fleks.Entity
-import com.github.quillraven.fleks.IteratingSystem
-import com.github.quillraven.fleks.Qualifier
+import com.github.quillraven.fleks.*
 import ktx.assets.disposeSafely
 import ktx.collections.GdxArray
 import ktx.graphics.use
@@ -22,21 +20,23 @@ import ktx.graphics.use
 @AllOf([ImageComponent::class])
 class RenderSystem (
     private val gameStage : Stage,
+    private val imageComps:ComponentMapper<ImageComponent>,
     @Qualifier("uiStage") private val uiStage : Stage
     ): IteratingSystem() , EventListener {
 
-    private val mapRenderer : OrthogonalTiledMapRenderer = OrthogonalTiledMapRenderer(null, UNIT_SCALE,SpriteBatch(1))
+    private val mapRenderer : OrthogonalTiledMapRenderer = OrthogonalTiledMapRenderer(null, UNIT_SCALE,SpriteBatch(100))
     private val gameCamera : OrthographicCamera = gameStage.camera as OrthographicCamera
     private val tiledMapTileLayer = GdxArray<TiledMapTileLayer>()
+    private var startTime = 0L
 
     init {
         mapRenderer.setView(gameCamera)
     }
 
     override fun onTickEntity(entity: Entity) {
+        startTime = TimeUtils.nanoTime()
         gameStage.run{
             viewport.apply()
-            act(deltaTime)
             mapRenderer.batch.use {
                 tiledMapTileLayer.forEach { layer->
                     mapRenderer.renderTileLayer(layer)
@@ -46,7 +46,6 @@ class RenderSystem (
         }
         uiStage.run {
             viewport.apply()
-            act(deltaTime)
             draw()
         }
         mapRenderer.setView(gameCamera)

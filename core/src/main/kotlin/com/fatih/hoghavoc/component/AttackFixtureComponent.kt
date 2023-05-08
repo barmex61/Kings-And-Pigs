@@ -24,6 +24,7 @@ class AttackFixtureComponent() {
     var boxPieces : MutableList<FlipImage>? = null
     var boxPiecesBody : MutableList<Body>? = null
     var explodeBody : Body? = null
+    var hitPlayer : Boolean = false
 
     companion object{
         class AttackFixtureComponentListener(
@@ -45,6 +46,9 @@ class AttackFixtureComponent() {
             override fun onComponentRemoved(entity: Entity, component: AttackFixtureComponent) {
                 gameStage.root.removeActor(component.attackImage)
                 component.animationStr = ""
+                component.boxPieces?.forEach {
+                    gameStage.root.removeActor(it)
+                }
             }
         }
     }

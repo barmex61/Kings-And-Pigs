@@ -3,6 +3,7 @@ package com.fatih.hoghavoc.system
 import com.badlogic.gdx.graphics.g2d.Animation
 import com.badlogic.gdx.physics.box2d.World
 import com.badlogic.gdx.scenes.scene2d.Stage
+import com.badlogic.gdx.utils.TimeUtils
 import com.fatih.hoghavoc.component.*
 import com.github.quillraven.fleks.AllOf
 import com.github.quillraven.fleks.ComponentMapper
