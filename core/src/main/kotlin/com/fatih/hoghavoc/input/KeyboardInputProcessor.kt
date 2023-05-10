@@ -49,7 +49,6 @@ class KeyboardInputProcessor(
             playerEntities.forEach {player->
             attackComps[player].run {
                 if (playerAttack){
-                    attackState = AttackState.ATTACK
                     playerAttack = false
                   }
                }
@@ -63,7 +62,7 @@ class KeyboardInputProcessor(
                 }
                 attackComps[player].run {
                     if (playerAttack){
-                        attackState = AttackState.ATTACK
+                        doAttack = true
                         playerAttack = false
                     }
                 }

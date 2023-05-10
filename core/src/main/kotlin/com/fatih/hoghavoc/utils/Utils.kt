@@ -26,8 +26,8 @@ const val DEFAULT_SPEED = 2f
 const val TIME_BETWEEN_ATTACKS = 250L
 const val DEAD_DELAY = 0.5f
 const val HIT_DELAY = 0.2f
-const val BOX_ATTACK_DELAY = 3f
-const val MELEE_ATTACK_DELAY = 0.5f
+const val BOX_ATTACK_DELAY = 1f
+const val MELEE_ATTACK_DELAY = 0.55f
 const val BOMB_ATTACK_DELAY = 2f
 
 const val KING_BIT : Short = 16

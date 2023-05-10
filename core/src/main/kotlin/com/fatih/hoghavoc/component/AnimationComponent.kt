@@ -3,6 +3,7 @@ package com.fatih.hoghavoc.component
 import com.badlogic.gdx.graphics.g2d.Animation
 import com.badlogic.gdx.graphics.g2d.Animation.PlayMode
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
+import com.badlogic.gdx.utils.TimeUtils
 import com.fatih.hoghavoc.utils.DEFAULT_FRAME_DURATION
 
 enum class AnimationType{
@@ -20,7 +21,7 @@ class AnimationComponent(
     var playMode: PlayMode = PlayMode.LOOP,
     var isAnimation : Boolean = true,
     var deadImageScale : Float = 1f,
-    var isScaled : Boolean = false
+    var isScaled : Boolean = false,
 ) {
     lateinit var animType : AnimationType
     var textureType: TextureType? = null
@@ -34,11 +35,28 @@ class AnimationComponent(
         return ( animation.isAnimationFinished(stateTime))
     }
 
+    fun isAnimationDone(animType : AnimationType) : Boolean {
+        if (entityModel == EntityModel.PIG_FIRE ) {
+            println(animType)
+            println(stateTime)
+            println(playMode)
+        }
+        return ( this.animType == animType && animation.isAnimationFinished(stateTime))
+    }
+
+    fun isAttackAnimationDone() : Boolean {
+        return animation.isAnimationFinished(stateTime + 0.2f)
+    }
+
     fun nextAnimation(animationType: AnimationType,playMode: PlayMode = this.playMode,frameDuration: Float = this.frameDuration){
         isAnimation = true
+        this.playMode = playMode
         val animType = when(animationType){
             AnimationType.IDLE ->{
-                if (entityModel == EntityModel.PIG_FIRE) AnimationType.READY else animationType
+                if (entityModel == EntityModel.PIG_FIRE) {
+                    this.playMode = PlayMode.NORMAL
+                    AnimationType.PREPARE
+                } else animationType
             }
             AnimationType.DEAD ->{
                 when{
@@ -51,9 +69,6 @@ class AnimationComponent(
             }
             AnimationType.ATTACK ->{
                 when(entityModel){
-                    EntityModel.PIG_FIRE->{
-                        AnimationType.USE
-                    }
                     EntityModel.PIG_BOMB->{
                         AnimationType.THROW
                     }
@@ -66,9 +81,9 @@ class AnimationComponent(
 
             else -> animationType
         }
+        if (entityModel == EntityModel.PIG_FIRE) println("${entityModel.name.lowercase()}_${animType.name.lowercase()}")
         nextAnimation = "${entityModel.name.lowercase()}_${animType.name.lowercase()}"
         this.animType = animType
-        this.playMode = playMode
         this.frameDuration = frameDuration
         this.stateTime = 0f
     }
@@ -79,4 +94,5 @@ class AnimationComponent(
         this.stateTime = 0f
         this.textureType = textureType
     }
+
 }

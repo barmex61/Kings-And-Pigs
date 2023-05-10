@@ -1,6 +1,7 @@
 package com.fatih.hoghavoc.ai
 
 import com.badlogic.gdx.graphics.g2d.Animation
+import com.badlogic.gdx.graphics.g2d.Animation.PlayMode
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Stage
@@ -26,6 +27,7 @@ class EnemyAiEntity(
     aiComps : ComponentMapper<AiComponent> = world.mapper(),
     imageComps : ComponentMapper<ImageComponent> = world.mapper(),
     attackComps : ComponentMapper<AttackComponent> = world.mapper(),
+    enemyComps : ComponentMapper<EnemyComponent> = world.mapper(),
     private val lifeComps : ComponentMapper<LifeComponent> = world.mapper()
 ){
 
@@ -36,6 +38,7 @@ class EnemyAiEntity(
     private val imageComponent = imageComps[entity]
     private val lifeComponent = lifeComps[entity]
     private val aiComponent = aiComps[entity]
+    private val enemyComponent = enemyComps[entity]
     private val bodyPos = vec2()
     private val movingBodyPos : Vector2 = Vector2(physicComponent.body.position.x,physicComponent.body.position.y)
     private var xDiff = 0f
@@ -45,6 +48,12 @@ class EnemyAiEntity(
     private var playerPhysicComponent : PhysicComponent?= null
     private var playerEntity : Entity? = null
     private var time = TimeUtils.millis()
+
+    var doAttack: Boolean = false
+        set(value) {
+            field = value
+            attackComponent.doAttack = value
+        }
 
     val playerTarget : Vector2 = vec2()
 
@@ -65,9 +74,10 @@ class EnemyAiEntity(
         moveComponent?.run {
             val angleRad = MathUtils.atan2(targetY-sourceY,targetX-sourceX)
             cos = MathUtils.cos(angleRad)
-            if (fromFocus && targetY > sourceY + 0.2f){
-                (MathUtils.cos(angleRad)*20f).coerceAtMost(1f)
+            if (fromFocus && targetY - sourceY > 0.1f ){
+                sin = MathUtils.sin(angleRad).coerceAtLeast(0.4f)
             }
+
         }
     }
 
@@ -168,6 +178,9 @@ class EnemyAiEntity(
     fun isFalling() = (physicComponent.body.linearVelocity.y < -0.3f)
     fun isJumping() = (physicComponent.body.linearVelocity.y > 0.3f)
     fun isGetHit() = lifeComponent.getHit
+    fun setGetHit() {
+        lifeComponent.getHit = false
+    }
     fun canMove() : Boolean{
         return moveComponent?.let {
             it.moveRange != 0f
@@ -175,11 +188,14 @@ class EnemyAiEntity(
     }
     fun isAlive() = lifeComponent.life > 0f
     fun isMeleeAttack() : Boolean {
-        return attackComponent.attackRange <= 1f
+        return attackComponent.attackRange <= 2f
     }
 
     fun isRangeAttack(): Boolean {
-        return attackComponent.attackRange > 1f
+        return attackComponent.attackRange > 2f
     }
+
+    fun isFirePig() = enemyComponent.entityModel == EntityModel.PIG_FIRE
+    fun isAnimationFinished(animType: AnimationType) = animationComponent.isAnimationDone(animType)
 
 }

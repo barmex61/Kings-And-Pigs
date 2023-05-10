@@ -20,7 +20,7 @@ class HogHavoc : KtxGame<KtxScreen>() , EventListener{
     private val spriteBatch by lazy {
         SpriteBatch()
     }
-    private val gameStage by lazy { Stage(FitViewport(16f,9f),spriteBatch) }
+    private val gameStage by lazy { Stage(ExtendViewport(16f,9f),spriteBatch) }
     private val uiStage by lazy { Stage(ExtendViewport(400f,225f),spriteBatch) }
     private var pause = false
     private var dt = 0f

@@ -3,10 +3,7 @@ package com.fatih.hoghavoc.system
 import com.badlogic.gdx.graphics.g2d.Animation
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
-import com.fatih.hoghavoc.component.AnimationComponent
-import com.fatih.hoghavoc.component.AnimationType
-import com.fatih.hoghavoc.component.ImageComponent
-import com.fatih.hoghavoc.component.PhysicComponent
+import com.fatih.hoghavoc.component.*
 import com.fatih.hoghavoc.utils.EMPTY_LINE
 import com.github.quillraven.fleks.AllOf
 import com.github.quillraven.fleks.ComponentMapper
@@ -43,7 +40,9 @@ class AnimationSystem(
         physicComponent = physicComps[entity]
         animationComponent.run {
             if (isAnimation){
+
                 if (nextAnimation.isNotEmpty()){
+                    if (entityModel == EntityModel.PIG_FIRE) println("system $nextAnimation")
                     animation = getAnimation(nextAnimation,frameDuration)
                     animation.playMode = playMode
                     nextAnimation = EMPTY_LINE

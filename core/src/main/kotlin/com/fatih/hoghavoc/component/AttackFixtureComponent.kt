@@ -10,19 +10,19 @@ import com.github.quillraven.fleks.ComponentListener
 import com.github.quillraven.fleks.Entity
 import ktx.math.vec2
 
-class AttackFixtureComponent() {
+class AttackFixtureComponent {
     var attackImage : FlipImage? = null
     var attackBody : Body? = null
     var delay : Float = 0f
-    var imagePos : Vector2 = vec2()
+    var imageSize : Vector2 = vec2()
     var maxDelay : Float = 0f
     lateinit var attackType : AttackType
     var animation : Animation<TextureRegionDrawable>? =null
     var animationStr : String = ""
     var stateTimer = 0f
     var destroyBodies : Boolean = false
-    var boxPieces : MutableList<FlipImage>? = null
-    var boxPiecesBody : MutableList<Body>? = null
+    var boxPiecesHashMap : HashMap<FlipImage,Body?>? = null
+    var boxPiecesBodyCreated : Boolean = false
     var explodeBody : Body? = null
     var hitPlayer : Boolean = false
 
@@ -46,9 +46,7 @@ class AttackFixtureComponent() {
             override fun onComponentRemoved(entity: Entity, component: AttackFixtureComponent) {
                 gameStage.root.removeActor(component.attackImage)
                 component.animationStr = ""
-                component.boxPieces?.forEach {
-                    gameStage.root.removeActor(it)
-                }
+
             }
         }
     }

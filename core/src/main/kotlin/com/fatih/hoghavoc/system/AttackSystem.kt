@@ -65,41 +65,47 @@ class AttackSystem(
         }
         attackComponent.run {
 
-            if (isReady){
+            if (isReady && !resetState){
                 delay = maxDelay
                 return
             }
-
-            if (isAttacking) {
-
+            if (!resetState){
                 when(attackType){
-                    AttackType.MELEE_ATTACK ->{
+                    AttackType.MELEE_ATTACK->{
                         if (delay == maxDelay){
-                          gameStage.fireEvent(AttackEvent(physicComponent.body.linearVelocity.y > 0.1f))
+                            gameStage.fireEvent(AttackEvent(physicComponent.body.linearVelocity.y > 0.1f))
                         }
                         if (delay > 0f){
                             meleeAttack(attackOnEnemy,entity)
                         }
                     }
                     AttackType.BOX ->{
-                        if (delay == maxDelay)
+                        if (!attackDone && animationComponent.isAttackAnimationDone()){
+                            attackDone = true
                             boxAttack(entity,maxDelay, attackType)
+                        }
                     }
                     AttackType.BOMB->{
-                        if (delay == maxDelay)
+                        if (!attackDone && animationComponent.isAttackAnimationDone()){
+                            attackDone = true
                             bombAttack(entity,maxDelay,attackType)
+                        }
                     }
                     else -> Unit
                 }
+
             }
-            if (delay <= maxDelay / 3f){
+            if (delay <= maxDelay / 1.5f){
                 destroyAttackBody(meleeAttackBody)
                 meleeAttackBody = null
             }
             if (delay <= 0f){
+                attackDone = false
+                doAttack = false
                 attackState = AttackState.READY
             }
             delay -= deltaTime
+            resetState = false
         }
     }
 
@@ -117,21 +123,17 @@ class AttackSystem(
         configureEntity(entity){
             if (entity !in attackFixtureComps){
                 attackFixtureComps.add(entity){
-                    if (boxPieces == null){
-                        boxPieces = mutableListOf()
-                        textureAtlas.findRegions("box_pieces").forEach {
-                            boxPieces!!.add(
-                                FlipImage(it).apply {
-                                    setSize(0.4f,0.4f)
-                                    setOrigin(Align.center)
-                                }
-                            )
-                        }
+                    if (boxPiecesHashMap == null) boxPiecesHashMap = hashMapOf()
+                    textureAtlas.findRegions("box_pieces").forEach {
+                        boxPiecesHashMap!![FlipImage(it).apply {
+                            setSize(0.4f,0.4f)
+                            setOrigin(Align.center)
+                        }] = null
                     }
                     delay = maxDelay
                     this.maxDelay = delay
                     this.attackType = attackType
-                    imagePos.set(0.5f,0.5f)
+                    imageSize.set(0.5f,0.5f)
                     attackBody =  physicWorld.body(BodyDef.BodyType.DynamicBody){
                         userData = entity
                         linearDamping = 1.5f
@@ -154,8 +156,8 @@ class AttackSystem(
                         setPosition(attackBody!!.position.x - 0.5f,attackBody!!.position.y - 0.5f)
                     }
                     val diffX = playerBodyPos!!.x - physicComponent.body.position.x
-                    val diffY = (playerBodyPos!!.y - physicComponent.body.position.y).coerceAtLeast(0.1f)
-                    attackBody!!.applyLinearImpulse(Vector2(diffX*200f,diffY*600f),attackBody!!.worldCenter + (0f..1f).random(),true)
+                    val diffY = (playerBodyPos!!.y - physicComponent.body.position.y).coerceAtLeast(0.2f)
+                    attackBody!!.applyLinearImpulse(Vector2(diffX*200f,diffY*500f),attackBody!!.worldCenter + (0f..1f).random(),true)
                 }
             }
         }
@@ -165,10 +167,10 @@ class AttackSystem(
         configureEntity(entity){
             if (entity !in attackFixtureComps){
                 attackFixtureComps.add(entity){
-                    delay = maxDelay
+                    delay = BOMB_ATTACK_DELAY / 2f
                     this.maxDelay = delay
                     this.attackType = attackType
-                    imagePos.set(1.625f,1.5f)
+                    imageSize.set(1.625f,1.5f)
                     attackBody =  physicWorld.body(BodyDef.BodyType.DynamicBody){
                         userData = entity
                         linearDamping = 1f
@@ -187,12 +189,12 @@ class AttackSystem(
                         }
                     }
                     attackImage =  FlipImage(textureAtlas.findRegion("bomb_idle"),false).apply{
-                        setPosition(attackBody!!.position.x - imagePos.x,attackBody!!.position.y - imagePos.y)
+                        setPosition(attackBody!!.position.x - imageSize.x,attackBody!!.position.y - imageSize.y)
                         setSize(3.25f,3.5f)
                     }
                     val diffX = playerBodyPos!!.x - physicComponent.body.position.x
                     val diffY = playerBodyPos!!.y - physicComponent.body.position.y
-                    attackBody!!.applyLinearImpulse(Vector2(diffX*50f,diffY*100f),attackBody!!.worldCenter  ,true)
+                    attackBody!!.applyLinearImpulse(Vector2(diffX*50f,diffY*100f),attackBody!!.worldCenter   ,true)
                 }
             }
         }

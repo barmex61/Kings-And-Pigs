@@ -18,6 +18,7 @@ abstract class Action : LeafTask<EnemyAiEntity>(){
     val entity : EnemyAiEntity
         get() = `object`
     protected var deltaTime :Float = 0f
+    protected var fireAnimCount : Int = 0
     override fun copyTo(task: Task<EnemyAiEntity>) = task
 
 }
@@ -30,8 +31,8 @@ class IdleTask(
     private var currentDuration = 0f
 
     override fun execute(): Status {
-        if (entity.entity.id == 43){
-            println("idle")
+        if (entity.entity.id == 38){
+          //  println("idle")
         }
         deltaTime = GdxAI.getTimepiece().deltaTime
         if (status != Status.RUNNING){
@@ -67,8 +68,8 @@ class WanderTask : Action(){
     override fun execute(): Status {
         deltaTime = GdxAI.getTimepiece().deltaTime
         timer -= deltaTime
-        if (entity.entity.id == 43){
-            println("wander")
+        if (entity.entity.id == 38){
+         //   println("wander")
         }
         if (status != Status.RUNNING){
 
@@ -109,8 +110,8 @@ class MeleeAttackTask : Action(){
     override fun execute(): Status {
 
         deltaTime = GdxAI.getTimepiece().deltaTime
-        if (entity.entity.id == 43){
-            println("melee")
+        if (entity.entity.id == 38){
+          //  println("melee")
         }
         if (!entity.isAlive()){
             return Status.FAILED
@@ -136,8 +137,8 @@ class MeleeAttackTask : Action(){
 class RangeAttackTask : Action(){
     override fun execute(): Status {
         deltaTime = GdxAI.getTimepiece().deltaTime
-        if (entity.entity.id == 43){
-            println("rangeattack")
+        if (entity.entity.id == 38){
+          //  println("rangeattack")
         }
         if (!entity.isAlive()){
             return Status.FAILED
@@ -148,7 +149,6 @@ class RangeAttackTask : Action(){
             entity.startAnimation(AnimationType.ATTACK, Animation.PlayMode.NORMAL, DEFAULT_FRAME_DURATION )
             entity.stopMovement()
             entity.startAttack()
-            println("startattack")
             return Status.RUNNING
         }
         if (entity.animationComponent.isAnimationDone(AnimationType.ATTACK,Animation.PlayMode.NORMAL)){
@@ -164,8 +164,8 @@ class RangeAttackTask : Action(){
 
 class FallTask : Action(){
     override fun execute(): Status {
-        if (entity.entity.id == 43){
-            println("fall")
+        if (entity.entity.id == 38){
+          //  println("fall")
         }
         if(status != Status.RUNNING){
 
@@ -184,8 +184,8 @@ class FallTask : Action(){
 
 class JumpTask : Action(){
     override fun execute(): Status {
-        if (entity.entity.id == 43){
-            println("jump")
+        if (entity.entity.id == 38){
+          //  println("jump")
         }
         if(status != Status.RUNNING){
 
@@ -202,17 +202,63 @@ class JumpTask : Action(){
     }
 }
 
-class HitTask() : Action(){
+class HitTask(
+    @JvmField
+    @TaskAttribute(required = true)
+    var duration : FloatDistribution? = null
+) : Action(){
     override fun execute(): Status {
-        if (entity.entity.id == 43){
-            println("hittask")
+        deltaTime -= GdxAI.getTimepiece().deltaTime
+        if (entity.entity.id == 38){
         }
+        println("hittask")
+
         if (status != Status.RUNNING){
+            entity.startAnimation(AnimationType.HIT,Animation.PlayMode.NORMAL, DEFAULT_FRAME_DURATION * 2.5f )
+            deltaTime = duration?.nextFloat()?:1.5f
             entity.stopMovement()
             return Status.RUNNING
         }
-        if (!entity.isGetHit()){
-            return Status.FAILED
+        if (deltaTime <= 0f){
+            entity.setGetHit()
+            return  Status.FAILED
+        }
+
+        return Status.RUNNING
+    }
+}
+
+
+class CycleTask: Action(){
+    override fun execute(): Status {
+        if (status != Status.RUNNING){
+            fireAnimCount = 0
+            entity.startAnimation(AnimationType.PREPARE,Animation.PlayMode.NORMAL, DEFAULT_FRAME_DURATION *2f)
+            return Status.RUNNING
+        }
+        if (entity.isAnimationFinished(AnimationType.PREPARE)){
+            entity.startAnimation(AnimationType.READY,Animation.PlayMode.NORMAL,DEFAULT_FRAME_DURATION *2f)
+            fireAnimCount = 1
+        }
+        if (entity.isAnimationFinished(AnimationType.READY)){
+            entity.startAnimation(AnimationType.USE,Animation.PlayMode.NORMAL,DEFAULT_FRAME_DURATION *2f)
+            fireAnimCount = 2
+        }
+        if (entity.isAnimationFinished(AnimationType.USE)){
+            fireAnimCount = 3
+            entity.doAttack = true
+            entity.startAnimation(AnimationType.READY,Animation.PlayMode.NORMAL, DEFAULT_FRAME_DURATION *2f)
+            return Status.SUCCEEDED
+        }
+        return Status.RUNNING
+    }
+}
+
+class FireTask : Action(){
+    override fun execute(): Status {
+        if (status != Status.RUNNING){
+            entity.startAttack()
+            return Status.RUNNING
         }
 
         return Status.RUNNING
@@ -221,15 +267,15 @@ class HitTask() : Action(){
 
 class FocusTask : Action(){
     private var timer : Float = 0f
-    private var timeCount : Float = 1f
+    private var timeCount : Float = 0f
     override fun execute(): Status {
         timer += GdxAI.getTimepiece().deltaTime
-        if (entity.entity.id == 43){
-            println("focus")
+        if (entity.entity.id == 38){
+           // println("focus")
         }
         if (timer>timeCount){
             entity.moveTo(entity.playerTarget,true)
-            timeCount += 1f
+            timeCount += 0.2f
         }
         if (status != Status.RUNNING){
 
@@ -242,10 +288,14 @@ class FocusTask : Action(){
         }
         if (entity.canAttack()){
             timer = 0f
-            timeCount = 1f
+            timeCount = 0f
             return Status.SUCCEEDED
         }
         if (entity.isGetHit()){
+            return Status.FAILED
+        }
+        if (timer > 2.5f){
+            timer = 0f
             return Status.FAILED
         }
         return Status.RUNNING

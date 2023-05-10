@@ -20,19 +20,17 @@ import ktx.graphics.use
 class RenderSystem (
     private val gameStage : Stage,
     @Qualifier("uiStage") private val uiStage : Stage
-    ): IntervalSystem(), EventListener {
+    ): IntervalSystem(Fixed(1/300f)), EventListener {
 
     private val mapRenderer : OrthogonalTiledMapRenderer = OrthogonalTiledMapRenderer(null, UNIT_SCALE,SpriteBatch(1))
     private val gameCamera : OrthographicCamera = gameStage.camera as OrthographicCamera
     private val tiledMapTileLayer = GdxArray<TiledMapTileLayer>()
-    private var startTime = 0L
 
     init {
         mapRenderer.setView(gameCamera)
     }
 
-    override fun onTick() {
-        startTime = TimeUtils.nanoTime()
+    override fun onAlpha(alpha: Float) {
         gameStage.run{
             mapRenderer.batch.use {
                 tiledMapTileLayer.forEach { layer->
@@ -42,10 +40,15 @@ class RenderSystem (
             draw()
         }
         uiStage.run {
+            act(deltaTime)
             draw()
         }
         mapRenderer.setView(gameCamera)
+
+
     }
+
+
 
     override fun handle(event: Event?): Boolean {
         return when(event){
@@ -61,5 +64,8 @@ class RenderSystem (
         mapRenderer.disposeSafely()
     }
 
+    override fun onTick() {
+
+    }
 
 }

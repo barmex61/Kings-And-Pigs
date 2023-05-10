@@ -13,6 +13,7 @@ enum class AttackType{
 }
 
 class AttackComponent(
+    var doAttack : Boolean = false,
     var attackDamage : IntRange = (1..5),
     var attackRange : Float = 0f,
     val criticalHitChance: Float = 0.5f,
@@ -22,6 +23,8 @@ class AttackComponent(
     var attackOnEnemy : Boolean = true,
     var attackType : AttackType = AttackType.MELEE_ATTACK,
     var meleeAttackBody : Body? = null,
+    var attackDone :Boolean = false,
+    var resetState : Boolean = false
 ){
 
     val isReady : Boolean

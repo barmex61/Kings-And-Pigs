@@ -54,3 +54,13 @@ class IsMeleeAttack : Condition(){
 class IsRangeAttack : Condition(){
     override fun condition() = entity.isRangeAttack()
 }
+class IsFirePig : Condition(){
+    override fun condition() = entity.isFirePig()
+}
+class IsReadyToFire : Condition(){
+    override fun condition() = entity.doAttack
+}
+
+class CanNotFire : Condition(){
+    override fun condition() = !entity.doAttack
+}

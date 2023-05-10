@@ -21,6 +21,7 @@ import com.github.quillraven.fleks.ComponentMapper
 import com.github.quillraven.fleks.Entity
 import com.github.quillraven.fleks.IteratingSystem
 import ktx.assets.disposeSafely
+import ktx.math.random
 import kotlin.math.abs
 
 @AllOf([LifeComponent::class])
@@ -52,13 +53,6 @@ class LifeSystem(
         physicComponent = physicComps[entity]
         animationComponent = animComps[entity]
         lifeComponent.run {
-            if (getHit){
-                hitDelay -= deltaTime
-                if (hitDelay<=0f){
-                    getHit = false
-                    hitDelay = HIT_DELAY
-                }
-            }
             if (takeDamage > 0f && life > 0f){
                 getHit = true
                 life -= takeDamage
@@ -97,7 +91,7 @@ class LifeSystem(
     private fun floatingText(text:String,position:Vector2,size:Vector2){
         world.entity {
             add<FloatingTextComponent>{
-                textLocation.set(position.x + size.x * 0.4f,position.y + size.y * 0.5f)
+                textLocation.set(position.x + size.x * (-1f..1f).random(),position.y + size.y * (0.8f..2f).random())
                 lifeSpan = 2f
                 label = Label(text,floatingTextStyle)
             }
@@ -107,7 +101,6 @@ class LifeSystem(
     override fun handle(event: Event): Boolean {
         return when(event) {
             is PlayerHitEnemyEvent ->{
-                animComps.getOrNull(event.enemyEntity)?.nextAnimation(AnimationType.HIT,Animation.PlayMode.NORMAL, DEFAULT_FRAME_DURATION )
                 val time = entityHitTimer.getOrPut(event.enemyEntity){
                     lifeComps.getOrNull(event.enemyEntity)?.let {lifeComponent->
                         lifeComponent.takeDamage = attackComps[event.playerEntity].let {
@@ -129,14 +122,15 @@ class LifeSystem(
 
             is EnemyHitPlayerEvent -> {
                 event.enemyEntity?.let {
-                    animComps.getOrNull(event.playerEntity)?.nextAnimation(AnimationType.HIT,Animation.PlayMode.NORMAL, DEFAULT_FRAME_DURATION)
                     lifeComps.getOrNull(event.playerEntity)?.let{lifeComponent->
                         lifeComponent.takeDamage= attackComps.getOrNull(event.enemyEntity)?.let {
                             when(it.attackType){
                                 AttackType.BOX->{
-
                                     abs((attackFixtureComps[event.enemyEntity].attackBody?.linearVelocity?.x?:0f) +
                                     (attackFixtureComps[event.enemyEntity].attackBody?.linearVelocity?.y?:0f))*5f
+                                }
+                                AttackType.BOMB->{
+                                    (40f..100f).random()
                                 }
                                 else -> it.attackDamage.random().toFloat()
                             }

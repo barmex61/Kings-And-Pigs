@@ -6,6 +6,8 @@ import fall:"com.fatih.hoghavoc.ai.FallTask"
 import jump:"com.fatih.hoghavoc.ai.JumpTask"
 import hit:"com.fatih.hoghavoc.ai.HitTask"
 import focus:"com.fatih.hoghavoc.ai.FocusTask"
+import cycle:"com.fatih.hoghavoc.ai.CycleTask"
+import fire:"com.fatih.hoghavoc.ai.FireTask"
 
 import isEnemyNearby?:"com.fatih.hoghavoc.ai.IsEnemyNearby"
 import canAttack?:"com.fatih.hoghavoc.ai.CanAttack"
@@ -17,10 +19,14 @@ import canNotAttack?:"com.fatih.hoghavoc.ai.CanNotAttack"
 import canNotMove?:"com.fatih.hoghavoc.ai.CanNotMove"
 import isMeleeAttack?:"com.fatih.hoghavoc.ai.IsMeleeAttack"
 import isRangeAttack?:"com.fatih.hoghavoc.ai.IsRangeAttack"
+import isFirePig?:"com.fatih.hoghavoc.ai.IsFirePig"
+import isReadyToFire?:"com.fatih.hoghavoc.ai.IsReadyToFire"
+import canNotFire?:"com.fatih.hoghavoc.ai.CanNotFire"
 
 subtree name : "hit"
     sequence
-        (isGetDamage?) hit
+        (isGetDamage?) hit duration:"uniform,0.3,0.8"
+
 
 subtree name : "fall"
     sequence
@@ -34,16 +40,19 @@ subtree name : "focus"
     sequence
         (isEnemyNearby?) (canNotAttack?) (canMove?) (isMeleeAttack?) focus
 
+subtree name : "firePig"
+    selector
+        (canNotFire?) cycle
+        (isReadyToFire?) fire
+
 
 subtree name : "meleeAttackSubTree"
      sequence
          meleeAttack
-         wait seconds:"uniform,1.2,1.8"
 
 subtree name : "rangeAttackSubTree"
      sequence
          rangeAttack
-         wait seconds:"uniform,1.2,1.8"
 
 subtree name : "doAttack"
     selector
@@ -55,8 +64,9 @@ root
         $hit
         $jump
         $fall
-        (isEnemyNearby?) (canAttack?)  $doAttack
         $focus
+        (isFirePig?) $firePig
+        (isEnemyNearby?) (canAttack?)  $doAttack
         (canNotMove?) idle duration:"uniform,1.5,3"
         (random success:0.25) idle duration:"uniform,1.5,3.5"
         (canMove?) wander

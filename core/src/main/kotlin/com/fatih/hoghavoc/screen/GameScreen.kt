@@ -59,7 +59,6 @@ class GameScreen(private val gameStage:Stage,private val uiStage: Stage) : KtxSc
         systems {
             add<EntitySpawnSystem>()
             add<AnimationSystem>()
-            add<RenderSystem>()
             add<MoveSystem>()
             add<PhysicSystem>()
             add<AttackSystem>()
@@ -70,6 +69,7 @@ class GameScreen(private val gameStage:Stage,private val uiStage: Stage) : KtxSc
             add<StateSystem>()
             add<AiSystem>()
             add<AudioSystem>()
+            add<RenderSystem>()
             add<CameraSystem>()
             add<DebugSystem>()
         }

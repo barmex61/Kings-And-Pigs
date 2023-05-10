@@ -12,11 +12,13 @@ import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.utils.TimeUtils
 import com.fatih.hoghavoc.utils.*
 import com.fatih.hoghavoc.component.*
-import com.fatih.hoghavoc.events.DestroyBoxBodies
 import com.fatih.hoghavoc.events.EnemyHitPlayerEvent
 import com.fatih.hoghavoc.events.PlayerHitEnemyEvent
+import com.fatih.hoghavoc.system.AttackFixtureSystem.Companion.BOMB_EXPLODE_FIXTURE
+import com.fatih.hoghavoc.system.AttackSystem.Companion.PIG_BOMB_FIXTURE
 import com.fatih.hoghavoc.system.AttackSystem.Companion.PIG_BOX_FIXTURE
 import com.github.quillraven.fleks.*
+import javax.swing.Box
 import kotlin.experimental.or
 
 
@@ -29,6 +31,7 @@ class PhysicSystem(
     private val playerComps : ComponentMapper<PlayerComponent>,
     private val aiComps : ComponentMapper<AiComponent>,
     private val enemyComps : ComponentMapper<EnemyComponent>,
+    private val attackFixtureComps : ComponentMapper<AttackFixtureComponent>,
     private val gameStage : Stage
 ) : IteratingSystem(interval = Fixed(1/144f)) , ContactListener{
 
@@ -40,6 +43,7 @@ class PhysicSystem(
     private var kingPigEntity : Entity? = null
     private var axeBody : Body? = null
     private var impulseTimer : Long = TimeUtils.millis()
+    private var bombTimer : Long = TimeUtils.millis()
     private lateinit var fixture: Fixture
 
 
@@ -94,7 +98,7 @@ class PhysicSystem(
                     EntityModel.KING_PIG -> {
                         imageOffset.set(
                             if ( imageComponent.image.flipX)  physicComponent.size.x * 0.4f else physicComponent.size.x * 0.5f,
-                            0f
+                            -0.1f
                         )
                     }
                     EntityModel.PIG_BOMB ->{
@@ -175,9 +179,34 @@ class PhysicSystem(
                 }
                 gameStage.run {
                     fireEvent(EnemyHitPlayerEvent(kingEntity!!,boxEntity))
-                    fireEvent(DestroyBoxBodies())
+                    boxEntity?.let {
+                        attackFixtureComps.getOrNull(boxEntity)?.hitPlayer=true
+                    }
                 }
             }
+            BOMB_BIT or KING_BIT -> {
+
+                if (fixtureA.userData == PIG_BOMB_FIXTURE){
+                    attackFixtureComps[fixtureA.body.userData as Entity].hitPlayer = true
+                }
+
+                if (fixtureB.userData == PIG_BOMB_FIXTURE ) {
+                    attackFixtureComps[fixtureB.body.userData as Entity].hitPlayer = true
+                }
+
+                if (fixtureA.filterData.categoryBits == KING_BIT  && fixtureB.userData == BOMB_EXPLODE_FIXTURE && TimeUtils.millis() - bombTimer > 600L){
+                    bombTimer = TimeUtils.millis()
+                    kingEntity = fixtureA.userData as Entity
+                    gameStage.fireEvent(EnemyHitPlayerEvent(kingEntity!!,fixtureB.body.userData as Entity))
+                }
+                if (fixtureB.filterData.categoryBits == KING_BIT && fixtureA.userData == BOMB_EXPLODE_FIXTURE && TimeUtils.millis() - bombTimer > 600L){
+                    bombTimer = TimeUtils.millis()
+                    kingEntity = fixtureB.userData as Entity
+                    gameStage.fireEvent(EnemyHitPlayerEvent(kingEntity!!,fixtureA.body.userData as Entity))
+                }
+
+            }
+
             FOOT_BIT or GROUND_BIT ->{
                 kingEntity = getEntity(fixtureA,fixtureB, FOOT_BIT,null)
                 moveComps[kingEntity!!].canJump = true
@@ -193,6 +222,20 @@ class PhysicSystem(
             ENEMY_FOOT_BIT or ROOF_BIT ->{
                 pigEntity = getEntity(fixtureA,fixtureB, ENEMY_FOOT_BIT, PIG_FOOT_ENABLE_COLLISION)
                 moveComps[pigEntity!!].canJump = true
+            }
+            ENEMY_FOOT_BIT or BOMB_BIT, ENEMY_FOOT_BIT or BOX_BIT, ENEMY_FOOT_BIT or KING_BIT, ENEMY_FOOT_BIT or PIG_BIT , ENEMY_FOOT_BIT or KING_PIG_BIT ->{
+                if (fixtureA.filterData.categoryBits == ENEMY_FOOT_BIT){
+                    moveComps[fixtureA.userData as Entity].canJump = true
+                }else{
+                    moveComps[fixtureB.userData as Entity].canJump = true
+                }
+            }
+            FOOT_BIT or BOMB_BIT, FOOT_BIT or BOX_BIT, FOOT_BIT or KING_BIT, FOOT_BIT or PIG_BIT ,FOOT_BIT or KING_PIG_BIT ->{
+                if (fixtureA.filterData.categoryBits == FOOT_BIT){
+                    moveComps[fixtureA.userData as Entity].canJump = true
+                }else{
+                    moveComps[fixtureB.userData as Entity].canJump = true
+                }
             }
             AXE_BIT or PIG_BIT, AXE_BIT or KING_PIG_BIT -> {
                 setEntities(fixtureA, fixtureB, AXE_BIT)
@@ -254,6 +297,20 @@ class PhysicSystem(
                 setEntities(fixtureA,fixtureB, COLLISION_DETECT_BIT)
                 playerComps[kingEntity!!].nearbyEntities.remove(collisionPigEntity!!)
                 aiComps[collisionPigEntity!!].nearbyEntities.remove(kingEntity!!)
+            }
+            ENEMY_FOOT_BIT or BOMB_BIT, ENEMY_FOOT_BIT or BOX_BIT, ENEMY_FOOT_BIT or KING_BIT, ENEMY_FOOT_BIT or PIG_BIT , ENEMY_FOOT_BIT or KING_PIG_BIT ->{
+                if (fixtureA.filterData.categoryBits == ENEMY_FOOT_BIT){
+                    moveComps[fixtureA.userData as Entity].canJump = false
+                }else{
+                    moveComps[fixtureB.userData as Entity].canJump = false
+                }
+            }
+            FOOT_BIT or BOMB_BIT, FOOT_BIT or BOX_BIT, FOOT_BIT or KING_BIT, FOOT_BIT or PIG_BIT ,FOOT_BIT or KING_PIG_BIT ->{
+                if (fixtureA.filterData.categoryBits == FOOT_BIT){
+                    moveComps[fixtureA.userData as Entity].canJump = false
+                }else{
+                    moveComps[fixtureB.userData as Entity].canJump = false
+                }
             }
         }
     }

@@ -29,7 +29,8 @@ data class SpawnConfig(
     val maskBits : Short = -2,
     val moveRange : Float = 0f,
     val attackType : AttackType = AttackType.MELEE_ATTACK,
-    val attackFixtureDestroyDelay : Float = 0f
+    val attackFixtureDestroyDelay : Float = 0f,
+    val collisionRange : Float = 0f,
 
 )
 

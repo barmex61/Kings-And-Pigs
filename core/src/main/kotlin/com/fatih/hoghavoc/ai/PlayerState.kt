@@ -101,7 +101,7 @@ sealed class PlayerState : EntityState {
 
     object ATTACK : PlayerState(){
         override fun enter(entity: PlayerAiEntity) {
-            entity.startAnimation(AnimationType.ATTACK,Animation.PlayMode.NORMAL, DEFAULT_FRAME_DURATION * 1.5f)
+            entity.startAnimation(AnimationType.ATTACK,Animation.PlayMode.NORMAL, DEFAULT_FRAME_DURATION *2f)
         }
 
         override fun update(entity: PlayerAiEntity) {
@@ -115,16 +115,18 @@ sealed class PlayerState : EntityState {
     }
 
     object HIT : PlayerState(){
-        private var timer = 150L
+        private var timer = 0
         override fun enter(entity: PlayerAiEntity) {
+            entity.startAnimation(AnimationType.HIT,Animation.PlayMode.NORMAL, DEFAULT_FRAME_DURATION)
             entity.root(true)
         }
-
         override fun update(entity: PlayerAiEntity) {
-            timer -= 10L
-            if (timer<=0L){
-                timer = 150L
+            timer ++
+            if (timer>150){
+                timer = 0
+                entity.resetAttackState()
                 entity.changeState(IDLE)
+
             }
         }
     }

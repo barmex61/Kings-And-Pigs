@@ -18,6 +18,7 @@ class PlayerAiEntity(
     physicComps : ComponentMapper<PhysicComponent> = world.mapper()
 ) {
 
+
     val animationComponent = animComps[entity]
     private val attackComponent = attackComps[entity]
     private val playerStateComponent = playerStateComps[entity]
@@ -29,13 +30,17 @@ class PlayerAiEntity(
         get() = lifeComponent.isDead
 
     val getHit: Boolean
-        get() = animationComponent.animType == AnimationType.HIT
+        get() = lifeComponent.getHit
 
     val wantsToResurrect: Boolean
         get() = lifeComponent.wantsToResurrect
 
     val wantsToAttack: Boolean
-        get() = attackComponent.attackState == AttackState.ATTACK
+    get() {
+         if (attackComponent.doAttack && attackComponent.attackState == AttackState.READY)
+             attackComponent.attackState = AttackState.ATTACK
+         return attackComponent.attackState == AttackState.ATTACK
+     }
 
     val isJumping: Boolean
         get() = physicComponent.body.linearVelocity.y > 1.2f
@@ -59,7 +64,6 @@ class PlayerAiEntity(
             if (fromAttackState){
                 playerStateComponent.nextState = playerStateComponent.stateMachine.previousState
                 playerStateComponent.stateMachine.changeState(playerStateComponent.nextState)
-                attackComponent.attackState = AttackState.READY
             }else{
                 playerStateComponent.nextState = playerState
             }
@@ -72,6 +76,11 @@ class PlayerAiEntity(
 
     fun setTexture(textureType: TextureType) {
         animationComponent.nextTexture(textureType)
+    }
+
+    fun resetAttackState() {
+        attackComponent.resetState = true
+        lifeComponent.getHit = false
     }
 
 }

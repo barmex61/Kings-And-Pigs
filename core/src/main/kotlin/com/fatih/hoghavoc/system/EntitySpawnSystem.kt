@@ -53,7 +53,7 @@ class EntitySpawnSystem(
                     speedScaling = 0.5f,
                     lifeScaling = 1f,
                     maxLife = 5000f,
-                    attackFixtureDestroyDelay = 0.4f
+                    attackFixtureDestroyDelay = 0.4f,
                 )
             }
             KING_PIG ->{
@@ -69,10 +69,11 @@ class EntitySpawnSystem(
                     speedScaling = 0.3f,
                     lifeScaling = 0.8f,
                     aiTreePath = "ai/slime.tree",
-                    maxLife = 40f,
+                    maxLife = 400f,
                     moveRange = spawnComp.moveRange,
-                    extraAttackRange = 0.7f,
-                    attackFixtureDestroyDelay = 0.4f
+                    extraAttackRange = 0.9f,
+                    attackFixtureDestroyDelay = 0.4f,
+                    collisionRange = 3f
                 )
             }
             PIG, PIG_FIRE, PIG_BOMB, PIG_BOX ->{
@@ -85,6 +86,7 @@ class EntitySpawnSystem(
                 val extraAttackRange : Float
                 val attackType : AttackType
                 val attackDelay : Float
+                val collisionRange :Float
                 val attackFixtureDestroyDelay : Float
                 when (spawnComp.name) {
                     PIG -> {
@@ -93,7 +95,8 @@ class EntitySpawnSystem(
                         physicScaling = Vector2(0.43f,0.5f)
                         entityModel = EntityModel.PIG
                         physicOffset = Vector2(0.70f,0f)
-                        extraAttackRange = 0.7f
+                        extraAttackRange = 0.9f
+                        collisionRange = 3f
                         attackFixtureDestroyDelay = 0.4f
                         attackDelay = MELEE_ATTACK_DELAY
                         attackType = AttackType.MELEE_ATTACK
@@ -105,8 +108,9 @@ class EntitySpawnSystem(
                         speedScaling = 0.5f
                         physicOffset = Vector2(0.33f,0f)
                         physicScaling = Vector2(0.54f,0.77f)
-                        extraAttackRange = 0.7f
+                        extraAttackRange = 1f
                         attackFixtureDestroyDelay = 0.4f
+                        collisionRange = 3f
                         attackDelay = MELEE_ATTACK_DELAY
                         attackType = AttackType.FIRE
                         maskBits = KING_BIT or BOX_BIT or BOX_BIT or BOMB_BIT or AXE_BIT or GROUND_BIT or FOOT_BIT or PIG_BIT or ROOF_BIT
@@ -118,6 +122,7 @@ class EntitySpawnSystem(
                         speedScaling = 0.5f
                         attackDelay = BOMB_ATTACK_DELAY
                         extraAttackRange = 2.5f
+                        collisionRange = 5f
                         attackFixtureDestroyDelay = 0.4f
                         attackType = AttackType.BOMB
                         physicOffset = Vector2(0.33f,0f)
@@ -131,6 +136,7 @@ class EntitySpawnSystem(
                         extraAttackRange = 4f
                         attackFixtureDestroyDelay = 5f
                         attackDelay = BOX_ATTACK_DELAY
+                        collisionRange = 8f
                         attackType = AttackType.BOX
                         entityModel =  EntityModel.PIG_BOX.apply { identify = spawnComp.identify
                         maskBits = KING_BIT or BOX_BIT or BOMB_BIT or AXE_BIT or GROUND_BIT or FOOT_BIT or PIG_BIT or CANNON_BIT
@@ -149,6 +155,7 @@ class EntitySpawnSystem(
                     attackType = attackType,
                     attackDelay = attackDelay,
                     speedScaling = speedScaling,
+                    collisionRange = collisionRange,
                     lifeScaling = 0.5f,
                     aiTreePath = "ai/slime.tree",
                     maxLife = 20f,
@@ -229,7 +236,8 @@ class EntitySpawnSystem(
                             AnimationType.DOOR_OUT
                         }
                         EntityModel.PIG_FIRE -> {
-                            AnimationType.READY
+                            frameDuration = DEFAULT_FRAME_DURATION * 2f
+                            AnimationType.PREPARE
                         }
                         EntityModel.PIG_BOX ->{
                             if (spawnConfig.model.identify == "LookOut"){
@@ -269,7 +277,7 @@ class EntitySpawnSystem(
                         if (spawnConfig.model == EntityModel.PIG_BOX){
                             box(1.15f,1f,position = Vector2(0.55f,0.45f)){
                                 filter.categoryBits = BOX_BIT
-                                filter.maskBits = KING_BIT or GROUND_BIT
+                                filter.maskBits = KING_BIT or GROUND_BIT or FOOT_BIT or ENEMY_FOOT_BIT
                                 density = 100f
                                 userData = BOX_ON_HEAD
                             }
@@ -280,7 +288,7 @@ class EntitySpawnSystem(
                                 isSensor = true
                                 userData = spawnEntity
                                 filter.categoryBits = FOOT_BIT
-                                filter.maskBits = GROUND_BIT or BOX_BIT or ROOF_BIT
+                                filter.maskBits = KING_FOOT_ENABLE_COLLISION
                             }
 
                         }else if(spawnConfig.speedScaling != 0f && spawnConfig.model != EntityModel.BOX && spawnConfig.model != EntityModel.CANNON && spawnConfig.model != EntityModel.BOMB){
@@ -326,6 +334,7 @@ class EntitySpawnSystem(
                 if (spawnConfig.lifeScaling > 0f){
                     add<LifeComponent>{
                         maxLife = spawnConfig.maxLife
+                        life = maxLife
                         regenerationSpeed = 0f
                         takeDamage = 0f
                     }
@@ -346,7 +355,7 @@ class EntitySpawnSystem(
                     add<AiComponent>{
                         treePath = spawnConfig.aiTreePath
                     }
-                    physicComponent.body.circle(spawnConfig.extraAttackRange * 2f,Vector2(physicComponent.size.x * 0.7f,0f)){
+                    physicComponent.body.circle(spawnConfig.collisionRange,Vector2(physicComponent.size.x * 0.7f,0f)){
                         isSensor = true
                         filter.categoryBits = COLLISION_DETECT_BIT
                         filter.maskBits = KING_BIT
@@ -411,16 +420,17 @@ class EntitySpawnSystem(
 
                     world.entity {
                         add<SpawnComponent>{
-                                name = objName
-                                this.identify = identify?: ""
-                                this.moveRange = moveRange?:0f
-                                location.set(
-                                    mapObject.x * UNIT_SCALE,
-                                    mapObject.y * UNIT_SCALE
-                                )
-                            }
+                            name = objName
+                            this.identify = identify?: ""
+                            this.moveRange = moveRange?:0f
+                            location.set(
+                                mapObject.x * UNIT_SCALE,
+                                mapObject.y * UNIT_SCALE
+                            )
                         }
                     }
+                }
+
 
                 val collisionLayer = event.map.layer("CollisionLayer")
                 collisionLayer.objects.forEach { mapObject ->

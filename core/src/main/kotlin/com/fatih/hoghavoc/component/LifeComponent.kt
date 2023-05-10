@@ -5,11 +5,10 @@ import com.fatih.hoghavoc.utils.HIT_DELAY
 
 class LifeComponent(
     var maxLife : Float = 30f,
-    var life : Float = maxLife,
+    var life : Float = 30f,
     var regenerationSpeed : Float = 0f,
     var takeDamage : Float = 0f,
     var delay : Float = DEAD_DELAY,
-    var hitDelay : Float = HIT_DELAY,
     var getHit : Boolean = false
 ) {
 

@@ -10,6 +10,9 @@ import com.fatih.hoghavoc.HogHavoc
 fun main() {
     Lwjgl3Application(HogHavoc(), Lwjgl3ApplicationConfiguration().apply {
         setTitle("HogHavoc")
+        setForegroundFPS(0)
+        useVsync(false)
+        setIdleFPS(0)
         setWindowedMode(640, 480)
         setWindowIcon(*(arrayOf(128, 64, 32, 16).map { "libgdx$it.png" }.toTypedArray()))
     })
