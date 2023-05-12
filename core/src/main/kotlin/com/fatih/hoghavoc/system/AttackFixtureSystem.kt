@@ -25,6 +25,7 @@ import ktx.collections.map
 import ktx.math.plus
 import ktx.math.random
 import ktx.math.times
+import ktx.math.vec2
 import kotlin.experimental.or
 import kotlin.math.pow
 
@@ -51,23 +52,33 @@ class AttackFixtureSystem(
                     image.rotation = MathUtils.radiansToDegrees * body.angle
                 }
             }
-            if (delay <= 0f || hitPlayer){
-                if (animation == null){
+
+            if (delay <= 0f ){
+                if (animation == null ){
                     animation = getAnimation(animationStr)
                 }
-                if (attackType != AttackType.BOX){
-                    attackImage!!.run {
-                        drawable = animation!!.getKeyFrame(stateTimer)
+                when(attackType){
+                    AttackType.BOMB ->{
+                        attackImage!!.run {
+                            drawable = animation!!.getKeyFrame(stateTimer)
+                        }
                     }
-                }else{
-                    boxPiecesHashMap!!.forEach { (flipImage, body) ->
-                        body?.let {
-                            flipImage.run {
-                                setPosition(body.position.x - width /2f,body.position.y - height/2f)
-                                rotation = MathUtils.radiansToDegrees * body.angle
+                    AttackType.CANNON->{
+                        attackImage!!.run {
+                            drawable = animation!!.getKeyFrame(stateTimer)
+                        }
+                    }
+                    AttackType.BOX->{
+                        boxPiecesHashMap!!.forEach { (flipImage, body) ->
+                            body?.let {
+                                flipImage.run {
+                                    setPosition(body.position.x - width /2f,body.position.y - height/2f)
+                                    rotation = MathUtils.radiansToDegrees * body.angle
+                                }
                             }
                         }
                     }
+                    else -> Unit
                 }
 
                 stateTimer += deltaTime
@@ -78,17 +89,24 @@ class AttackFixtureSystem(
                             animationStr = "bomb_explode"
                             stateTimer = 0f
                             animation = getAnimation(animationStr)
+
                         }
                     }
 
                     "bomb_explode"->{
                         if (animation!!.isAnimationFinished(stateTimer) && !destroyBodies){
-                            destroyBodies = true
                             gameStage.root.removeActor(attackImage)
-                        } else if (stateTimer > 0.15f && explodeBody == null && !destroyBodies){
+                            destroyBodies = true
+                        } else if (explodeBody == null && !destroyBodies){
+                            val attackBodyPos : Vector2 = vec2()
+                            attackBody?.let { attackBody->
+                                attackBodyPos.set(attackBody.position)
+                                physicWorld.destroyBody(attackBody)
+                            }
+                            attackBody = null
                             explodeBody = physicWorld.body {
-                                position.set(attackBody!!.position)
                                 userData = entity
+                                position.set(attackBodyPos)
                                 circle(1.5f, position = Vector2(0f,-0.3f)){
                                     density = 500f
                                     userData = BOMB_EXPLODE_FIXTURE
@@ -96,16 +114,23 @@ class AttackFixtureSystem(
                                     filter.maskBits = KING_BIT
                                     restitution = 10f
                                 }
+                                attackImage!!.setSize(3.2f,3.2f)
+                                attackImage!!.setPosition(this.position.x - imageSize.x ,this.position.y - imageSize.y )
                             }
-
                         }
                     }
 
                     "box_pieces"->{
                         if (animation!!.isAnimationFinished(stateTimer) && !destroyBodies){
+                            gameStage.root.removeActor(attackImage)
                             destroyBodies = true
                         }else if (!boxPiecesBodyCreated && !destroyBodies){
-                            destroyBody(attackBody)
+                            val attackBodyPos : Vector2 = vec2()
+                            attackBody?.let { attackBody->
+                                attackBodyPos.set(attackBody.position)
+                                physicWorld.destroyBody(attackBody)
+                            }
+                            attackBody = null
                             gameStage.root.removeActor(attackImage)
                             boxPiecesBodyCreated = true
                             val posList = arrayOf(
@@ -118,7 +143,7 @@ class AttackFixtureSystem(
                                 boxPiecesHashMap!![flipImage] = physicWorld.body(BodyDef.BodyType.DynamicBody){
                                         linearDamping = 2f
                                         fixedRotation = false
-                                        position.set(attackBody!!.position + posList[index])
+                                        position.set(attackBodyPos + posList[index])
                                         box(0.4f,0.4f){
                                             userData = BOX_PIECES_FIXTURES
                                             filter.categoryBits = BOX_BIT
@@ -134,23 +159,28 @@ class AttackFixtureSystem(
 
                                 gameStage.addActor(flipImage)
                             }
-
-
                         }
                     }
                 }
                 if (destroyBodies){
-                    destroyBody(explodeBody)
-                    destroyBody(attackBody)
+                    explodeBody?.run {
+                        physicWorld.destroyBody(explodeBody)
+                    }
+                    explodeBody = null
+                    attackBody?.run {
+                        physicWorld.destroyBody(attackBody)
+                    }
+                    attackBody = null
                     if (boxPiecesHashMap != null){
                         boxPiecesHashMap!!.forEach { (flipImage,body) ->
-                            destroyBody(body)
+                            body?.run {
+                                physicWorld.destroyBody(body)
+                            }
                             gameStage.root.removeActor(flipImage)
                             boxPiecesHashMap!![flipImage] = null
                         }
                         boxPiecesHashMap = null
                     }
-                    attackBody = null
                     attackImage = null
                     destroyBodies = false
                     configureEntity(entity){
@@ -159,14 +189,6 @@ class AttackFixtureSystem(
 
                 }
             }
-        }
-    }
-
-    private fun destroyBody(body:Body?){
-        body?.fixtureList?.forEach {
-            it.filterData.categoryBits = NOTHING_BIT
-            body.destroyFixture(it)
-            physicWorld.destroyBody(body)
         }
     }
 

@@ -10,9 +10,11 @@ import com.fatih.hoghavoc.component.*
 import com.fatih.hoghavoc.utils.DEFAULT_FRAME_DURATION
 import com.github.quillraven.fleks.ComponentMapper
 import com.github.quillraven.fleks.Entity
+import com.github.quillraven.fleks.Family
 import com.github.quillraven.fleks.World
 import ktx.math.component1
 import ktx.math.component2
+import ktx.math.plus
 import ktx.math.vec2
 import kotlin.math.abs
 import kotlin.math.pow
@@ -21,12 +23,12 @@ class EnemyAiEntity(
     private val world: World,
     val entity: Entity,
     val gameStage: Stage,
-    animComps : ComponentMapper<AnimationComponent> = world.mapper(),
+    private val animComps : ComponentMapper<AnimationComponent> = world.mapper(),
     private val physicComps : ComponentMapper<PhysicComponent> = world.mapper(),
     moveComps : ComponentMapper<MoveComponent> = world.mapper(),
     aiComps : ComponentMapper<AiComponent> = world.mapper(),
     imageComps : ComponentMapper<ImageComponent> = world.mapper(),
-    attackComps : ComponentMapper<AttackComponent> = world.mapper(),
+    private val attackComps : ComponentMapper<AttackComponent> = world.mapper(),
     enemyComps : ComponentMapper<EnemyComponent> = world.mapper(),
     private val lifeComps : ComponentMapper<LifeComponent> = world.mapper()
 ){
@@ -39,7 +41,10 @@ class EnemyAiEntity(
     private val lifeComponent = lifeComps[entity]
     private val aiComponent = aiComps[entity]
     private val enemyComponent = enemyComps[entity]
-    private val bodyPos = vec2()
+    private val bodyPos : Vector2
+        get() {
+            return  physicComponent.body.position + physicComponent.offset
+        }
     private val movingBodyPos : Vector2 = Vector2(physicComponent.body.position.x,physicComponent.body.position.y)
     private var xDiff = 0f
     private var yDiff = 0f
@@ -48,12 +53,32 @@ class EnemyAiEntity(
     private var playerPhysicComponent : PhysicComponent?= null
     private var playerEntity : Entity? = null
     private var time = TimeUtils.millis()
+    private val cannonEntity by lazy {
+        world.family(arrayOf(EnemyComponent::class)).find {
+            enemyComps[it].entityModel == EntityModel.CANNON
+        }
+    }
+
+    private fun Family.find(action : (Entity) -> Boolean) : Entity?{
+        var entity : Entity? = null
+        this.forEach {
+           if (action(it)){
+               entity = it
+               return@forEach
+           }
+        }
+        return entity
+    }
 
     var doAttack: Boolean = false
+        get() = attackComponent.doAttack
         set(value) {
             field = value
             attackComponent.doAttack = value
         }
+
+    val isAttacking : Boolean
+        get() = attackComponent.attackState == AttackState.ATTACK
 
     val playerTarget : Vector2 = vec2()
 
@@ -62,6 +87,9 @@ class EnemyAiEntity(
 
     val location : Vector2
         get() = physicComponent.body.position
+
+    val isDead: Boolean
+        get() = lifeComponent.isDead
 
     fun startAnimation(animationType: AnimationType, playMode: Animation.PlayMode, frameDuration : Float = DEFAULT_FRAME_DURATION ) {
         animationComponent.nextAnimation(animationType,playMode,frameDuration)
@@ -85,16 +113,13 @@ class EnemyAiEntity(
         time = TimeUtils.millis()
         moveComponent?.let {
             if (moveComponent.sin > 0f){
-                moveComponent.sin  -= 0.2f
-            }else{
                 moveComponent.sin = 0f
             }
-            bodyPos.set(physicComponent.body.position)
             xDiff = targetLocation.x - bodyPos.x
             yDiff = targetLocation.y - bodyPos.y
             distanceBetweenVectors = kotlin.math.sqrt(xDiff.pow(2) + yDiff.pow(2))
 
-            return if (distanceBetweenVectors <= range * range ) {
+            return if (distanceBetweenVectors <= range * 2f ) {
                 movingBodyPos.set(
                     physicComponent.body.position.x,
                     physicComponent.body.position.y
@@ -110,8 +135,10 @@ class EnemyAiEntity(
                 xDiff = physicComponent.body.position.x - movingBodyPos.x
                 yDiff = physicComponent.body.position.y - movingBodyPos.y
                 distanceBetweenItself = kotlin.math.sqrt(xDiff.pow(2)+yDiff.pow(2))
-                if (distanceBetweenItself <= 0.00008f){
-                    if (moveComponent.sin<=0f && time - moveComponent.timeBetweenJumps >= 1500L ){
+
+                if (distanceBetweenItself <= 0.0008f){
+
+                    if (moveComponent.sin<=0f && time - moveComponent.timeBetweenJumps >= 300L ){
                         moveComponent.sin = 1f
                         moveComponent.timeBetweenJumps = TimeUtils.millis()
                     }
@@ -139,13 +166,13 @@ class EnemyAiEntity(
         }
         playerEntity = aiComponent.nearbyEntities.firstOrNull()
         playerEntity?.let {player->
-            if (playerPhysicComponent == null)
+            if (playerPhysicComponent == null){
                 playerPhysicComponent = physicComps[player]
+            }
             playerTarget.set(
                 playerPhysicComponent!!.body.position.x + playerPhysicComponent!!.offset.x ,
                 playerPhysicComponent!!.body.position.y + playerPhysicComponent!!.offset.y
             )
-
             return inRange(attackComponent.attackRange,playerTarget)
         }?:return false
     }
@@ -161,6 +188,7 @@ class EnemyAiEntity(
     }
 
     fun startAttack() {
+        doAttack = true
         attackComponent.attackState = AttackState.ATTACK
     }
 
@@ -197,5 +225,12 @@ class EnemyAiEntity(
 
     fun isFirePig() = enemyComponent.entityModel == EntityModel.PIG_FIRE
     fun isAnimationFinished(animType: AnimationType) = animationComponent.isAnimationDone(animType)
+    fun startCannonAttack() {
+        cannonEntity?.let {
+            animComps[cannonEntity!!].nextAnimation(AnimationType.SHOOT,PlayMode.NORMAL,
+                DEFAULT_FRAME_DURATION * 2f)
+            }
+    }
+
 
 }

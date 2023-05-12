@@ -7,7 +7,6 @@ import jump:"com.fatih.hoghavoc.ai.JumpTask"
 import hit:"com.fatih.hoghavoc.ai.HitTask"
 import focus:"com.fatih.hoghavoc.ai.FocusTask"
 import cycle:"com.fatih.hoghavoc.ai.CycleTask"
-import fire:"com.fatih.hoghavoc.ai.FireTask"
 
 import isEnemyNearby?:"com.fatih.hoghavoc.ai.IsEnemyNearby"
 import canAttack?:"com.fatih.hoghavoc.ai.CanAttack"
@@ -20,13 +19,10 @@ import canNotMove?:"com.fatih.hoghavoc.ai.CanNotMove"
 import isMeleeAttack?:"com.fatih.hoghavoc.ai.IsMeleeAttack"
 import isRangeAttack?:"com.fatih.hoghavoc.ai.IsRangeAttack"
 import isFirePig?:"com.fatih.hoghavoc.ai.IsFirePig"
-import isReadyToFire?:"com.fatih.hoghavoc.ai.IsReadyToFire"
-import canNotFire?:"com.fatih.hoghavoc.ai.CanNotFire"
 
 subtree name : "hit"
     sequence
-        (isGetDamage?) hit duration:"uniform,0.3,0.8"
-
+        (isGetDamage?) hit duration:"uniform,0.1,0.2"
 
 subtree name : "fall"
     sequence
@@ -42,9 +38,7 @@ subtree name : "focus"
 
 subtree name : "firePig"
     selector
-        (canNotFire?) cycle
-        (isReadyToFire?) fire
-
+        cycle
 
 subtree name : "meleeAttackSubTree"
      sequence
@@ -61,11 +55,12 @@ subtree name : "doAttack"
 
 root
     selector
+
         $hit
         $jump
         $fall
-        $focus
         (isFirePig?) $firePig
+        $focus
         (isEnemyNearby?) (canAttack?)  $doAttack
         (canNotMove?) idle duration:"uniform,1.5,3"
         (random success:0.25) idle duration:"uniform,1.5,3.5"

@@ -9,14 +9,14 @@ enum class AttackState {
 }
 
 enum class AttackType{
-    BOX,FIRE,BOMB,MELEE_ATTACK
+    BOX,CANNON,BOMB,MELEE_ATTACK
 }
 
 class AttackComponent(
     var doAttack : Boolean = false,
     var attackDamage : IntRange = (1..5),
     var attackRange : Float = 0f,
-    val criticalHitChance: Float = 0.5f,
+    var criticalHitChance: Float = 0f,
     var delay : Float = 1f,
     var maxDelay : Float = 1f,
     var attackState : AttackState = AttackState.READY,
@@ -24,7 +24,7 @@ class AttackComponent(
     var attackType : AttackType = AttackType.MELEE_ATTACK,
     var meleeAttackBody : Body? = null,
     var attackDone :Boolean = false,
-    var resetState : Boolean = false
+    var resetState : Boolean = false,
 ){
 
     val isReady : Boolean

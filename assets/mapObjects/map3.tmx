@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.9" tiledversion="1.9.2" orientation="orthogonal" renderorder="right-down" width="12" height="24" tilewidth="32" tileheight="32" infinite="0" nextlayerid="9" nextobjectid="68">
+ <tileset firstgid="1" source="tileset1.tsx"/>
+ <tileset firstgid="513" source="entities.tsx"/>
+ <layer id="3" name="BackgroundLayer" width="12" height="24">
+  <data encoding="csv">
+67,0,0,0,0,0,0,0,0,0,0,0,
+67,0,226,227,227,227,227,227,227,227,228,0,
+67,67,258,259,259,259,259,259,259,259,260,0,
+67,67,258,259,259,259,259,259,259,259,260,0,
+67,0,258,259,259,259,259,259,259,259,260,0,
+67,0,258,259,232,291,291,291,291,291,292,0,
+67,0,258,259,260,0,0,0,0,0,0,0,
+67,0,258,259,260,0,0,0,0,0,0,0,
+67,0,258,259,264,227,227,227,227,227,228,0,
+67,0,290,291,291,291,291,291,233,259,260,0,
+67,67,0,0,0,0,0,0,258,259,260,0,
+67,67,67,67,67,67,67,0,258,259,260,0,
+67,67,67,67,67,67,67,0,258,259,260,0,
+67,67,67,67,67,67,67,0,258,259,260,0,
+0,0,0,0,0,0,0,0,258,259,260,0,
+0,226,227,227,227,227,227,227,265,259,260,0,
+0,331,291,291,291,233,259,259,259,259,260,0,
+0,262,259,259,259,258,259,259,259,259,260,0,
+0,363,227,227,227,265,259,259,259,259,260,0,
+0,290,291,233,259,259,232,291,291,291,332,0,
+0,0,0,258,259,259,260,259,259,259,262,0,
+67,67,0,258,259,259,264,227,227,227,364,0,
+67,67,0,290,291,291,291,291,291,291,292,0,
+67,67,0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <layer id="4" name="BackgroundObjectLayer" width="12" height="24">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,2147483991,2147483990,0,0,0,0,
+0,0,0,0,0,0,2147484023,2147484022,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,2147483991,2147483990,0,0,0,0,
+0,0,0,0,0,0,2147484023,2147484022,0,277,0,0,
+0,0,0,0,0,0,0,0,0,309,0,0,
+0,0,0,0,0,0,0,0,0,341,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,2147483991,2147483990,0,0,0,0,0,0,2147483991,2147483990,0,
+0,2147484023,2147484022,0,0,0,0,0,0,2147484023,2147484022,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <layer id="1" name="GroundLayer" width="12" height="24">
+  <data encoding="csv">
+0,40,99,99,99,99,99,99,99,99,99,41,
+0,68,0,0,0,0,0,0,0,0,0,66,
+0,68,0,0,0,0,0,0,0,0,0,66,
+0,68,0,0,0,0,0,0,0,0,0,66,
+0,68,0,0,0,0,0,0,0,0,0,66,
+0,68,0,0,0,0,0,0,0,0,0,66,
+0,68,0,0,0,34,35,35,35,35,35,73,
+0,68,0,0,0,98,99,99,99,99,99,41,
+0,68,0,0,0,0,0,0,0,0,0,66,
+0,68,0,0,0,0,0,0,0,0,0,66,
+0,72,35,35,35,35,35,36,0,0,0,66,
+0,0,0,0,0,0,0,68,0,0,0,66,
+0,0,0,0,0,0,0,68,0,0,0,66,
+0,0,0,0,0,0,0,68,0,0,0,66,
+40,99,99,99,99,99,99,100,0,0,0,66,
+68,0,0,0,0,0,0,0,0,0,0,66,
+68,0,0,0,0,0,0,0,0,0,0,66,
+68,0,162,163,164,0,0,0,0,0,0,66,
+68,0,0,0,0,0,0,0,0,0,0,66,
+68,0,0,0,0,0,0,0,0,0,0,66,
+72,35,36,0,0,0,0,162,163,164,0,66,
+0,0,68,0,0,0,0,0,0,0,0,66,
+0,0,68,0,0,0,0,0,0,0,0,66,
+0,0,72,35,35,35,35,35,35,35,35,73
+</data>
+ </layer>
+ <layer id="5" name="GroundObjectLayer" width="12" height="24">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,313,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,310,311,312,0,0,
+0,0,0,0,313,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,281,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,281,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,281,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,281,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <objectgroup id="6" name="CollisionLayer">
+  <object id="1" x="64" y="544" width="96" height="32"/>
+  <object id="2" x="224" y="640" width="96" height="32"/>
+  <object id="9" x="96" y="736" width="256" height="8"/>
+  <object id="10" x="352" y="256" width="8" height="480"/>
+  <object id="11" x="160" y="248" width="192" height="8"/>
+  <object id="12" x="160" y="192" width="8" height="64"/>
+  <object id="13" x="160" y="192" width="192" height="8"/>
+  <object id="14" x="352" y="32" width="8" height="160"/>
+  <object id="15" x="64" y="24" width="288" height="8"/>
+  <object id="16" x="56" y="32" width="8" height="288"/>
+  <object id="17" x="64" y="320" width="192" height="8"/>
+  <object id="18" x="248" y="320" width="8" height="160"/>
+  <object id="19" x="32" y="472" width="224" height="8"/>
+  <object id="20" x="24" y="480" width="8" height="160"/>
+  <object id="21" x="32" y="640" width="64" height="8"/>
+  <object id="22" x="88" y="640" width="8" height="96"/>
+  <object id="23" x="8.5" y="463.5" width="23.5" height="16.5"/>
+  <object id="25" x="12.75" y="640" width="19.25" height="16"/>
+  <object id="27" x="78.25" y="736" width="17.75" height="18"/>
+  <object id="28" x="352" y="736" width="17.5" height="17.25"/>
+  <object id="29" x="352" y="240.75" width="15" height="15.25"/>
+  <object id="30" x="352" y="192" width="16" height="15.75"/>
+  <object id="31" x="48.75" y="320" width="15.25" height="15.75"/>
+  <object id="32" x="44" y="16" width="20" height="16"/>
+  <object id="33" x="352" y="15.5" width="20" height="16.5"/>
+  <object id="34" x="224" y="96" width="96" height="10"/>
+  <object id="35" x="96" y="64" width="32" height="10"/>
+  <object id="39" name="Roof" x="288" y="544" width="32" height="5"/>
+  <object id="40" name="Roof" x="288" y="448" width="32" height="5"/>
+  <object id="41" name="Roof" x="288" y="352" width="32" height="5"/>
+  <object id="42" name="Roof" x="96" y="224" width="32" height="5"/>
+  <object id="66" x="128" y="128" width="32" height="10"/>
+ </objectgroup>
+ <objectgroup id="7" name="Portals">
+  <object id="37" name="Gate" gid="523" x="288" y="736" width="46" height="56"/>
+  <object id="43" name="Portal" x="278.182" y="174.727" width="3.27273" height="16">
+   <properties>
+    <property name="toMap" value="mapObjects/map4.tmx"/>
+   </properties>
+  </object>
+  <object id="67" name="Gate" gid="523" x="256" y="192" width="46" height="56"/>
+ </objectgroup>
+ <objectgroup id="8" name="EntityLayer" opacity="0.89">
+  <object id="44" name="King" gid="2147484164" x="266.33" y="749.333" width="78" height="58">
+   <properties>
+    <property name="flipX" type="bool" value="true"/>
+   </properties>
+  </object>
+  <object id="45" name="Pig_bomb" gid="2147484172" x="128.273" y="542.636" width="26" height="26">
+   <properties>
+    <property name="flipX" type="bool" value="true"/>
+    <property name="moveRange" type="float" value="3"/>
+   </properties>
+  </object>
+  <object id="46" name="Cannon" gid="526" x="212.136" y="641.364" width="44" height="28"/>
+  <object id="48" name="Pig_fire" gid="527" x="262.273" y="639" width="26" height="18"/>
+  <object id="49" name="Pig_box" gid="2147484169" x="53" y="639" width="26" height="30">
+   <properties>
+    <property name="flipX" type="bool" value="true"/>
+    <property name="moveRange" type="float" value="5"/>
+   </properties>
+  </object>
+  <object id="50" name="Pig_bomb" gid="524" x="67.5" y="542" width="26" height="26">
+   <properties>
+    <property name="moveRange" type="float" value="3"/>
+   </properties>
+  </object>
+  <object id="51" name="King_pig" gid="517" x="178" y="734.5" width="38" height="28"/>
+  <object id="55" name="Box" gid="525" x="149" y="734.5" width="26" height="20"/>
+  <object id="57" name="Box" gid="2147484168" x="152.091" y="717.636" width="22" height="16"/>
+  <object id="58" name="Pig" gid="519" x="175.5" y="320" width="34" height="28">
+   <properties>
+    <property name="moveRange" type="float" value="2.5"/>
+   </properties>
+  </object>
+  <object id="59" name="Pig" gid="519" x="128" y="320" width="34" height="28">
+   <properties>
+    <property name="moveRange" type="float" value="2.5"/>
+   </properties>
+  </object>
+  <object id="61" name="Pig_bomb" gid="524" x="96" y="64" width="26" height="26">
+   <properties>
+    <property name="moveRange" type="float" value="0.5"/>
+   </properties>
+  </object>
+  <object id="62" name="Cannon" gid="526" x="208.182" y="98.9091" width="44" height="28"/>
+  <object id="63" name="Pig_fire" gid="527" x="246.818" y="96.0909" width="26" height="18"/>
+  <object id="64" name="Pig_box" gid="521" x="309" y="190" width="26" height="30">
+   <properties>
+    <property name="moveRange" type="float" value="5"/>
+   </properties>
+  </object>
+  <object id="65" name="King_pig" gid="517" x="224" y="192" width="38" height="28">
+   <properties>
+    <property name="moveRange" type="float" value="3"/>
+   </properties>
+  </object>
+ </objectgroup>
+</map>

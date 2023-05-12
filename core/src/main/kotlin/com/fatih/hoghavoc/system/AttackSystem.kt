@@ -17,13 +17,17 @@ import com.github.quillraven.fleks.AllOf
 import com.github.quillraven.fleks.ComponentMapper
 import com.github.quillraven.fleks.Entity
 import com.github.quillraven.fleks.IteratingSystem
+import com.sun.jdi.FloatValue
 import ktx.box2d.body
 import ktx.box2d.box
 import ktx.box2d.chain
+import ktx.box2d.circle
 import ktx.math.plus
 import ktx.math.random
 import ktx.math.times
 import kotlin.experimental.or
+import kotlin.math.max
+import kotlin.math.min
 
 @AllOf([AttackComponent::class])
 class AttackSystem(
@@ -44,10 +48,10 @@ class AttackSystem(
     private lateinit var physicComponent: PhysicComponent
     private lateinit var animationComponent: AnimationComponent
     private lateinit var imageComponent: ImageComponent
-    private var playerBodyPos : Vector2? = null
+    var playerBodyPos : Vector2? = null
     private var stateComponent: PlayerStateComponent? = null
-    private val chainShapeArray : FloatArray = floatArrayOf(0.5f,1f,1.5f,0.5f,2.3f,0.8f,2.7f,1.4f,2.85f,2.5f,2.5f,3f,0.5f,1f)
-    private val chainShapeArrayFlipped : FloatArray =  floatArrayOf(1.5f,1f,0.5f,0.5f,-0.3f,0.8f,-0.7f,1.4f,-0.85f,2.5f,-0.5f,3f,1.5f,1f)
+    private val chainShapeArray : FloatArray = floatArrayOf(1.5f,1.2f,2.5f,0.7f,3.3f,1f,3.7f,1.6f,3.85f,2.7f,3.5f,3.2f,1.5f,1.2f)
+    private val chainShapeArrayFlipped : FloatArray =  floatArrayOf(1.5f,1.2f,0.5f,0.7f,-0.3f,1f,-0.7f,1.6f,-0.85f,2.7f,-0.5f,3.2f,1.5f,1.2f)
     private val enemyChainShape : FloatArray = floatArrayOf(0.1f,-0.1f,-0.1f,0.1f,-0.3f,0.3f,-0.4f,0.6f,-0.4f,0.8f,-0.1f,1.1f,0.1f,-0.1f)
     private val enemyChainShapeFlipped : FloatArray = floatArrayOf(1.3f,-0.1f,1.5f,0.1f,1.7f,0.3f,1.8f,0.6f,1.8f,0.8f,1.5f,1.1f,1.3f,-0.1f)
 
@@ -69,43 +73,51 @@ class AttackSystem(
                 delay = maxDelay
                 return
             }
-            if (!resetState){
-                when(attackType){
-                    AttackType.MELEE_ATTACK->{
-                        if (delay == maxDelay){
-                            gameStage.fireEvent(AttackEvent(physicComponent.body.linearVelocity.y > 0.1f))
+            if (isAttacking){
+                if (!resetState){
+                    when(attackType){
+                        AttackType.MELEE_ATTACK->{
+                            if (delay == maxDelay){
+                                gameStage.fireEvent(AttackEvent(physicComponent.body.linearVelocity.y > 0.1f))
+                            }
+                            if (delay > 0f){
+                                meleeAttack(attackOnEnemy,entity)
+                            }
                         }
-                        if (delay > 0f){
-                            meleeAttack(attackOnEnemy,entity)
+                        AttackType.BOX ->{
+                            if (!attackDone && animationComponent.isAttackAnimationDone()){
+                                attackDone = true
+                                boxAttack(entity,maxDelay, attackType)
+                            }
                         }
-                    }
-                    AttackType.BOX ->{
-                        if (!attackDone && animationComponent.isAttackAnimationDone()){
-                            attackDone = true
-                            boxAttack(entity,maxDelay, attackType)
+                        AttackType.BOMB->{
+                            if (!attackDone && animationComponent.isAttackAnimationDone()){
+                                attackDone = true
+                                bombAttack(entity,attackType)
+                            }
                         }
-                    }
-                    AttackType.BOMB->{
-                        if (!attackDone && animationComponent.isAttackAnimationDone()){
-                            attackDone = true
-                            bombAttack(entity,maxDelay,attackType)
-                        }
-                    }
-                    else -> Unit
-                }
+                        AttackType.CANNON->{
 
+                            if (!attackDone && animationComponent.isAttackAnimationDone(0.3f)) {
+                                attackDone = true
+                                cannonAttack(entity,attackType)
+                            }
+                        }
+                    }
+                }
+                if (delay <= maxDelay / 1.5f){
+                    destroyAttackBody(meleeAttackBody)
+                    meleeAttackBody = null
+                }
+                if (delay <= 0f && entity !in attackFixtureComps){
+                    attackDone = false
+                    doAttack = false
+                    delay = maxDelay
+                    attackState = AttackState.READY
+                }
+                delay -= deltaTime
+                resetState = false
             }
-            if (delay <= maxDelay / 1.5f){
-                destroyAttackBody(meleeAttackBody)
-                meleeAttackBody = null
-            }
-            if (delay <= 0f){
-                attackDone = false
-                doAttack = false
-                attackState = AttackState.READY
-            }
-            delay -= deltaTime
-            resetState = false
         }
     }
 
@@ -157,13 +169,13 @@ class AttackSystem(
                     }
                     val diffX = playerBodyPos!!.x - physicComponent.body.position.x
                     val diffY = (playerBodyPos!!.y - physicComponent.body.position.y).coerceAtLeast(0.2f)
-                    attackBody!!.applyLinearImpulse(Vector2(diffX*200f,diffY*500f),attackBody!!.worldCenter + (0f..1f).random(),true)
+                    attackBody!!.applyLinearImpulse(Vector2(diffX*(130f..210f).random(),diffY*(300f..500f).random()),attackBody!!.worldCenter + (0f..1f).random(),true)
                 }
             }
         }
     }
 
-    private fun bombAttack(entity: Entity,maxDelay : Float,attackType : AttackType){
+    private fun bombAttack(entity: Entity,attackType : AttackType){
         configureEntity(entity){
             if (entity !in attackFixtureComps){
                 attackFixtureComps.add(entity){
@@ -185,7 +197,7 @@ class AttackSystem(
                             density = 50f
                             userData = PIG_BOMB_FIXTURE
                             filter.categoryBits = BOMB_BIT
-                            filter.maskBits = GROUND_BIT or KING_BIT
+                            filter.maskBits = GROUND_BIT or KING_BIT or BOX_BIT or BOMB_BIT
                         }
                     }
                     attackImage =  FlipImage(textureAtlas.findRegion("bomb_idle"),false).apply{
@@ -193,8 +205,54 @@ class AttackSystem(
                         setSize(3.25f,3.5f)
                     }
                     val diffX = playerBodyPos!!.x - physicComponent.body.position.x
-                    val diffY = playerBodyPos!!.y - physicComponent.body.position.y
-                    attackBody!!.applyLinearImpulse(Vector2(diffX*50f,diffY*100f),attackBody!!.worldCenter   ,true)
+                    val diffY = (playerBodyPos!!.y - physicComponent.body.position.y).coerceAtLeast(0.3f)
+                    attackBody!!.applyLinearImpulse(Vector2(diffX*(40f..50f).random(),diffY*(60f..100f).random()),attackBody!!.worldCenter   ,true)
+                }
+            }
+        }
+    }
+
+    private fun cannonAttack(entity: Entity,attackType : AttackType){
+        configureEntity(entity){
+            if (entity !in attackFixtureComps){
+                attackFixtureComps.add(entity){
+                    delay = CANNON_ATTACK_DELAY
+                    this.maxDelay = delay
+                    this.attackType = attackType
+                    imageSize.set(2.75f/1.6f,1.75f/2f)
+                    var diffX : Float = 0f
+                    var diffY : Float = 0f
+                    attackBody =  physicWorld.body(BodyDef.BodyType.DynamicBody){
+                        userData = entity
+                        fixedRotation = true
+                        if (!imageComponent.image.flipX) {
+                            diffX = min(-5f,playerBodyPos!!.x - physicComponent.body.position.x)
+                            diffY = playerBodyPos!!.y + 2f - physicComponent.body.position.y
+                            position.set(
+                                physicComponent.body.position.x - 1.9f,
+                                physicComponent.body.position.y + 0.7f
+                            )
+                        }else{
+                            diffX = min(5f,playerBodyPos!!.x - physicComponent.body.position.x)
+                            diffY = playerBodyPos!!.y + 1f - physicComponent.body.position.y
+                            position.set(
+                                physicComponent.body.position.x + 2.5f,
+                                physicComponent.body.position.y + 0.7f
+                            )
+                        }
+                        circle(0.4f, Vector2(0.1f,-0.3f)){
+                            density = 200f
+                            userData = CANNON_BALL_FIXTURE
+                            filter.categoryBits = BOMB_BIT
+                            restitution = 0.5f
+                            filter.maskBits = GROUND_BIT or KING_BIT or BOX_BIT or BOMB_BIT
+                        }
+                    }
+                    attackImage =  FlipImage(textureAtlas.findRegion("cannon_ball"),false).apply{
+                        setPosition(attackBody!!.position.x - imageSize.x,attackBody!!.position.y - imageSize.y)
+                        setSize(2.75f,1.75f)
+                    }
+                    attackBody!!.applyLinearImpulse(Vector2(diffX*(120f..170f).random(),diffY*(350f..500f).random()),attackBody!!.worldCenter  ,true)
                 }
             }
         }
@@ -205,7 +263,6 @@ class AttackSystem(
             attackComponent.meleeAttackBody = physicWorld.body(BodyDef.BodyType.StaticBody){
                 position.set(physicComponent.body.position)
                 userData = entity
-                gravityScale = 0f
                 chain(
                     if (!imageComponent.image.flipX && attackOnEnemy){
                         chainShapeArray
@@ -236,6 +293,7 @@ class AttackSystem(
     companion object{
         const val PIG_BOX_FIXTURE = "PigBoxFixture"
         const val PIG_BOMB_FIXTURE = "PigBombFixture"
+        const val CANNON_BALL_FIXTURE = "CannonBallFixture"
     }
 }
 

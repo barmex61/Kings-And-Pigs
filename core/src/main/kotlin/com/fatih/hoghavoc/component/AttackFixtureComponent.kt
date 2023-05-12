@@ -6,6 +6,7 @@ import com.badlogic.gdx.physics.box2d.Body
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.fatih.hoghavoc.actors.FlipImage
+import com.fatih.hoghavoc.utils.NOTHING_BIT
 import com.github.quillraven.fleks.ComponentListener
 import com.github.quillraven.fleks.Entity
 import ktx.math.vec2
@@ -39,6 +40,9 @@ class AttackFixtureComponent {
                     AttackType.BOX->{
                         "box_pieces"
                     }
+                    AttackType.CANNON -> {
+                        "bomb_explode"
+                    }
                     else -> ""
                 }
             }
@@ -46,7 +50,6 @@ class AttackFixtureComponent {
             override fun onComponentRemoved(entity: Entity, component: AttackFixtureComponent) {
                 gameStage.root.removeActor(component.attackImage)
                 component.animationStr = ""
-
             }
         }
     }

@@ -12,6 +12,7 @@ import com.fatih.hoghavoc.component.ImageComponent
 import com.fatih.hoghavoc.events.MapChangeEvent
 import com.fatih.hoghavoc.utils.UNIT_SCALE
 import com.github.quillraven.fleks.*
+import ktx.actors.alpha
 import ktx.assets.disposeSafely
 import ktx.collections.GdxArray
 import ktx.graphics.use
@@ -38,6 +39,7 @@ class RenderSystem (
                 }
             }
             draw()
+            act(deltaTime)
         }
         uiStage.run {
             act(deltaTime)
@@ -53,6 +55,7 @@ class RenderSystem (
     override fun handle(event: Event?): Boolean {
         return when(event){
             is MapChangeEvent ->{
+                tiledMapTileLayer.clear()
                 event.map.layers.getByType(TiledMapTileLayer::class.java,tiledMapTileLayer)
                 true
             }

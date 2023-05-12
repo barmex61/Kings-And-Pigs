@@ -33,7 +33,6 @@ class LifeSystem(
     private val attackComps : ComponentMapper<AttackComponent>,
     private val moveComps : ComponentMapper<MoveComponent>,
     private val playerComps : ComponentMapper<PlayerComponent>,
-    private val attackFixtureComps : ComponentMapper<AttackFixtureComponent>,
     private val gameStage: Stage
 ) : IteratingSystem() , EventListener{
 
@@ -56,21 +55,21 @@ class LifeSystem(
             if (takeDamage > 0f && life > 0f){
                 getHit = true
                 life -= takeDamage
-                text =  if (takeDamage > 5f) "${lifeComponent.takeDamage.toInt()} Crit!" else lifeComponent.takeDamage.toInt().toString()
+                text =  if (critHit) "${lifeComponent.takeDamage} Crit!" else lifeComponent.takeDamage.toString()
+                critHit = false
                 floatingText(text,physicComponent.body.position,physicComponent.size)
                 if (entity in playerComps){
                     gameStage.fireEvent(PlayerDamageEvent(entity))
                 }else{
                     gameStage.fireEvent(EnemyDamageEvent(entity))
                 }
-                takeDamage = 0f
+                takeDamage = 0
             }
             if (isDead){
-                getHit = false
                 moveComps.getOrNull(entity)?.root = true
                 delay -= deltaTime
                 if (delay <= 0f){
-                    animationComponent.nextAnimation(AnimationType.DEAD,Animation.PlayMode.NORMAL, DEFAULT_FRAME_DURATION * 3f)
+                    animationComponent.nextAnimation(AnimationType.DEAD,Animation.PlayMode.NORMAL, DEFAULT_FRAME_DURATION )
                     configureEntity(entity){entity->
                         if (entity !in deadComps){
                             deadComps.add(entity){
@@ -91,7 +90,7 @@ class LifeSystem(
     private fun floatingText(text:String,position:Vector2,size:Vector2){
         world.entity {
             add<FloatingTextComponent>{
-                textLocation.set(position.x + size.x * (-1f..1f).random(),position.y + size.y * (0.8f..2f).random())
+                textLocation.set(position.x + size.x * (0.5f..1.5f).random(),position.y + size.y * (0.8f..2f).random())
                 lifeSpan = 2f
                 label = Label(text,floatingTextStyle)
             }
@@ -104,7 +103,7 @@ class LifeSystem(
                 val time = entityHitTimer.getOrPut(event.enemyEntity){
                     lifeComps.getOrNull(event.enemyEntity)?.let {lifeComponent->
                         lifeComponent.takeDamage = attackComps[event.playerEntity].let {
-                            if (Math.random() < it.criticalHitChance) it.attackDamage.random().toFloat() * 2 else it.attackDamage.random().toFloat()
+                            if (Math.random() < it.criticalHitChance) it.attackDamage.random() * 2 else it.attackDamage.random()
                         }
                     }
                     TimeUtils.millis()
@@ -112,7 +111,7 @@ class LifeSystem(
                 if (TimeUtils.millis() - time >= TIME_BETWEEN_ATTACKS){
                     lifeComps.getOrNull(event.enemyEntity)?.let{lifeComponent->
                         lifeComponent.takeDamage= attackComps[event.playerEntity].let {
-                            if (Math.random() < it.criticalHitChance) it.attackDamage.random().toFloat() * 2 else it.attackDamage.random().toFloat()
+                            if (Math.random() < it.criticalHitChance) it.attackDamage.random()* 2 else it.attackDamage.random()
                         }
                     }
                 }
@@ -123,18 +122,14 @@ class LifeSystem(
             is EnemyHitPlayerEvent -> {
                 event.enemyEntity?.let {
                     lifeComps.getOrNull(event.playerEntity)?.let{lifeComponent->
-                        lifeComponent.takeDamage= attackComps.getOrNull(event.enemyEntity)?.let {
-                            when(it.attackType){
-                                AttackType.BOX->{
-                                    abs((attackFixtureComps[event.enemyEntity].attackBody?.linearVelocity?.x?:0f) +
-                                    (attackFixtureComps[event.enemyEntity].attackBody?.linearVelocity?.y?:0f))*5f
-                                }
-                                AttackType.BOMB->{
-                                    (40f..100f).random()
-                                }
-                                else -> it.attackDamage.random().toFloat()
-                            }
-                        }?: 0f
+                        lifeComponent.run {
+                            takeDamage= attackComps.getOrNull(event.enemyEntity)?.let {
+                                it.attackDamage.random() * if ((0f..1f).random() < it.criticalHitChance) {
+                                    critHit = true
+                                    2
+                                } else 1
+                            }?: 0
+                        }
                     }
                 }
                 true

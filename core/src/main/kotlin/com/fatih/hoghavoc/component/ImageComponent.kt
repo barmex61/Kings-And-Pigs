@@ -11,7 +11,11 @@ class ImageComponent  {
     companion object{
         class ImageComponentListener(private val gameStage: Stage) : ComponentListener<ImageComponent>{
             override fun onComponentAdded(entity: Entity, component: ImageComponent) {
-                gameStage.addActor(component.image)
+                gameStage.run {
+                    addActor(component.image.apply {
+                        toFront()
+                    })
+                }
             }
 
             override fun onComponentRemoved(entity: Entity, component: ImageComponent) {

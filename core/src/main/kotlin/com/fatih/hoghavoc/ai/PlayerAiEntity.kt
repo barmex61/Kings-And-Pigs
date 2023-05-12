@@ -25,6 +25,11 @@ class PlayerAiEntity(
     private val lifeComponent = lifeComps[entity]
     private val moveComponent = moveComps[entity]
     private val physicComponent = physicComps[entity]
+    var moveIn: Boolean
+        get() = moveComponent.moveIn
+        set(value) {
+            moveComponent.moveIn = value
+        }
 
     val isDead: Boolean
         get() = lifeComponent.isDead
@@ -37,9 +42,10 @@ class PlayerAiEntity(
 
     val wantsToAttack: Boolean
     get() {
-         if (attackComponent.doAttack && attackComponent.attackState == AttackState.READY)
+         return if (attackComponent.doAttack && attackComponent.attackState == AttackState.READY) {
              attackComponent.attackState = AttackState.ATTACK
-         return attackComponent.attackState == AttackState.ATTACK
+             true
+         }else false
      }
 
     val isJumping: Boolean
@@ -50,6 +56,9 @@ class PlayerAiEntity(
 
     val isRunning : Boolean
         get() = moveComponent.cos != 0f && attackComponent.attackState == AttackState.READY
+
+    val animDone: Boolean
+        get() = animationComponent.isAnimationDone(AnimationType.ATTACK)
 
 
     fun startAnimation(animationType: AnimationType,playMode: PlayMode,frameDuration : Float = DEFAULT_FRAME_DURATION ) {

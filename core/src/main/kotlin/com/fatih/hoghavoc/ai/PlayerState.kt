@@ -23,12 +23,13 @@ sealed class PlayerState : EntityState {
     object DOOR_IN : PlayerState(){
         override fun enter(entity: PlayerAiEntity) {
             entity.root(true)
-            entity.startAnimation(AnimationType.DOOR_IN,Animation.PlayMode.NORMAL, DEFAULT_FRAME_DURATION * 1.5f)
+            println("moveinYesSir")
+            entity.startAnimation(AnimationType.DOOR_IN,Animation.PlayMode.NORMAL, DEFAULT_FRAME_DURATION * 2.5f)
         }
 
         override fun update(entity: PlayerAiEntity) {
             if (entity.animationComponent.isAnimationDone(AnimationType.DOOR_IN)){
-                entity.changeState(DOOR_OUT)
+                entity.moveIn = false
             }
         }
     }
@@ -41,7 +42,9 @@ sealed class PlayerState : EntityState {
 
         override fun update(entity: PlayerAiEntity) {
             when{
+
                 entity.isDead -> entity.changeState(DEAD)
+                entity.moveIn -> entity.changeState(DOOR_IN)
                 entity.getHit -> entity.changeState(HIT)
                 entity.isRunning -> entity.changeState(RUN)
                 entity.wantsToAttack -> entity.changeState(ATTACK)
@@ -59,6 +62,7 @@ sealed class PlayerState : EntityState {
         override fun update(entity: PlayerAiEntity) {
             when{
                 entity.isDead -> entity.changeState(DEAD)
+                entity.moveIn -> entity.changeState(DOOR_IN)
                 entity.getHit -> entity.changeState(HIT)
                 !entity.isRunning -> entity.changeState(IDLE)
                 entity.wantsToAttack -> entity.changeState(ATTACK)
@@ -76,6 +80,7 @@ sealed class PlayerState : EntityState {
         override fun update(entity: PlayerAiEntity) {
             when{
                 entity.isDead -> entity.changeState(DEAD)
+                entity.moveIn -> entity.changeState(DOOR_IN)
                 entity.getHit -> entity.changeState(HIT)
                 entity.wantsToAttack -> entity.changeState(ATTACK)
                 entity.isFalling -> entity.changeState(FALL)
@@ -92,6 +97,7 @@ sealed class PlayerState : EntityState {
         override fun update(entity: PlayerAiEntity) {
             when{
                 entity.isDead -> entity.changeState(DEAD)
+                entity.moveIn -> entity.changeState(DOOR_IN)
                 entity.getHit -> entity.changeState(HIT)
                 entity.wantsToAttack -> entity.changeState(ATTACK)
                 !entity.isFalling && !entity.isJumping -> entity.changeState(IDLE)
@@ -101,15 +107,16 @@ sealed class PlayerState : EntityState {
 
     object ATTACK : PlayerState(){
         override fun enter(entity: PlayerAiEntity) {
-            entity.startAnimation(AnimationType.ATTACK,Animation.PlayMode.NORMAL, DEFAULT_FRAME_DURATION *2f)
+            entity.startAnimation(AnimationType.ATTACK,Animation.PlayMode.NORMAL, DEFAULT_FRAME_DURATION )
         }
 
         override fun update(entity: PlayerAiEntity) {
             when{
                 entity.isDead -> entity.changeState(DEAD)
+                entity.moveIn -> entity.changeState(DOOR_IN)
                 entity.getHit -> entity.changeState(HIT)
                 entity.isRunning -> entity.changeState(RUN)
-                !entity.wantsToAttack -> entity.changeState(IDLE,true)
+                entity.animDone -> entity.changeState(IDLE,true)
             }
         }
     }
@@ -126,8 +133,8 @@ sealed class PlayerState : EntityState {
                 timer = 0
                 entity.resetAttackState()
                 entity.changeState(IDLE)
-
             }
+            if (entity.moveIn) entity.changeState(DOOR_IN)
         }
     }
 

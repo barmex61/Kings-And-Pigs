@@ -25,8 +25,14 @@ class AnimationSystem(
     private val animCache = hashMapOf<String,Animation<TextureRegionDrawable>>()
     private val textureCache = hashMapOf<String,TextureRegionDrawable>()
 
-    private fun getAnimation(nextAnimation: String,frameDuration : Float) : Animation<TextureRegionDrawable> = animCache.getOrPut(nextAnimation){
+    private fun getAnimation(nextAnimation: String,frameDuration : Float,entityModel: EntityModel? = null,isDoor : Boolean = false) : Animation<TextureRegionDrawable> = animCache.getOrPut(nextAnimation){
         val frames = textureAtlas.findRegions(nextAnimation)
+        entityModel?.let {
+            frames.add(frames.first())
+        }
+        if (isDoor){
+            frames.addAll(textureAtlas.findRegions("door_closing"))
+        }
         Animation(frameDuration,frames.map { TextureRegionDrawable(it) })
     }
 
@@ -42,20 +48,21 @@ class AnimationSystem(
             if (isAnimation){
 
                 if (nextAnimation.isNotEmpty()){
-                    if (entityModel == EntityModel.PIG_FIRE) println("system $nextAnimation")
-                    animation = getAnimation(nextAnimation,frameDuration)
+                    animation = getAnimation(nextAnimation,frameDuration,if (entityModel == EntityModel.CANNON) entityModel else null,isDoor)
                     animation.playMode = playMode
                     nextAnimation = EMPTY_LINE
                 }
 
                 if (!isScaled && animType == AnimationType.DEAD){
                     imageComponent.image.run {
+                        println(deadImageScale)
                         setSize(width*deadImageScale,height*deadImageScale)
                     }
                     isScaled = true
                 }
                 imageComponent.image.drawable = animation.getKeyFrame(stateTime)
                 stateTime += deltaTime
+
             }else{
                 if (nextTexture.isNotEmpty()){
                     texture = getTexture(nextTexture)

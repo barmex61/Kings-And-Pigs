@@ -84,15 +84,19 @@ class GameView(
         }
 
         model.playerLife.observe {percentage->
+            println("playerlife")
             reducePlayerHealth(percentage)
         }
         model.text.observe {str->
-           showActor(textTable,str)
+            println("texttable")
+            showActor(textTable,str)
         }
         model.enemyLife.observe {percentage->
+            println("enemylife")
             reduceEnemyHealth(percentage)
         }
         model.enemyImage.observe {enemyImage->
+            println("enemyımage")
             setEnemyImage(enemyImage)
         }
 

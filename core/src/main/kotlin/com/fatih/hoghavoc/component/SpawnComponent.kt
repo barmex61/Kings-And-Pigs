@@ -6,7 +6,7 @@ import ktx.math.vec2
 
 
 enum class EntityModel(var identify : String = "") {
-    KING,KING_PIG,PIG,BOMB,PIG_BOX,PIG_FIRE,PIG_BOMB,CANNON,BOX;
+    KING,KING_PIG,PIG,BOMB,PIG_BOX,PIG_FIRE,PIG_BOMB,CANNON,BOX,DOOR;
 }
 
 data class SpawnConfig(
@@ -31,6 +31,11 @@ data class SpawnConfig(
     val attackType : AttackType = AttackType.MELEE_ATTACK,
     val attackFixtureDestroyDelay : Float = 0f,
     val collisionRange : Float = 0f,
+    val doorOut : Boolean = false,
+    val doorIn : Boolean = false,
+    val attackDamage : IntRange = 0..1,
+    val critChance : Float = 0f,
+
 
 )
 
@@ -38,5 +43,8 @@ data class SpawnComponent (
     val location : Vector2 = vec2(),
     var name : String = "",
     var moveRange : Float = 0f,
-    var identify : String = ""
+    var identify : String = "",
+    var width : Float = 0f,
+    var height : Float = 0f,
+    var flipX : Boolean = false
     )

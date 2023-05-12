@@ -10,7 +10,9 @@ class PhysicComponent (
     val offset : Vector2 = vec2(),
     var size : Vector2 = vec2(),
     var imageScaleDirection : Float = 1f,
-    var imageOffset : Vector2 = vec2()
+    val imageOffset : Vector2 = vec2(),
+    val flipImageOffset : Vector2 = vec2()
+
     ){
     lateinit var body : Body
 }

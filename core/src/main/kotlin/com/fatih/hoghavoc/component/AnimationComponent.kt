@@ -8,7 +8,7 @@ import com.fatih.hoghavoc.utils.DEFAULT_FRAME_DURATION
 
 enum class AnimationType{
     DEAD,DOOR_IN,DOOR_OUT,FALL,GROUND,HIT,IDLE,RUN, ATTACK,BOX_FALL,BOX_GROUND,PICKING,JUMP_READY,LOOKING_OUT,
-    PREPARE,READY,USE, JUMP,RUNNING,THROW,THROWING,ON
+    PREPARE,READY,USE, JUMP,RUNNING,THROW,THROWING,ON,SHOOT,OPENING,CLOSING
 }
 
 enum class TextureType{
@@ -30,23 +30,22 @@ class AnimationComponent(
     lateinit var texture : TextureRegionDrawable
     var nextAnimation : String = ""
     var nextTexture : String = ""
+    var isDoor = false
+
 
     fun isAnimationDone(animType : AnimationType,playMode: PlayMode = PlayMode.NORMAL) : Boolean {
         return ( animation.isAnimationFinished(stateTime))
     }
 
     fun isAnimationDone(animType : AnimationType) : Boolean {
-        if (entityModel == EntityModel.PIG_FIRE ) {
-            println(animType)
-            println(stateTime)
-            println(playMode)
-        }
+
         return ( this.animType == animType && animation.isAnimationFinished(stateTime))
     }
 
-    fun isAttackAnimationDone() : Boolean {
-        return animation.isAnimationFinished(stateTime + 0.2f)
+    fun isAttackAnimationDone(plusTime : Float = 0.2f) : Boolean {
+        return animation.isAnimationFinished(stateTime + plusTime)
     }
+
 
     fun nextAnimation(animationType: AnimationType,playMode: PlayMode = this.playMode,frameDuration: Float = this.frameDuration){
         isAnimation = true
@@ -61,7 +60,7 @@ class AnimationComponent(
             AnimationType.DEAD ->{
                 when{
                     entityModel != EntityModel.PIG && entityModel != EntityModel.KING && entityModel != EntityModel.KING_PIG ->{
-                        deadImageScale = 1.15f
+                        deadImageScale = if (entityModel == EntityModel.PIG_FIRE) 1.5f else 1.15f
                         entityModel = EntityModel.PIG
                     }
                 }
@@ -81,7 +80,6 @@ class AnimationComponent(
 
             else -> animationType
         }
-        if (entityModel == EntityModel.PIG_FIRE) println("${entityModel.name.lowercase()}_${animType.name.lowercase()}")
         nextAnimation = "${entityModel.name.lowercase()}_${animType.name.lowercase()}"
         this.animType = animType
         this.frameDuration = frameDuration

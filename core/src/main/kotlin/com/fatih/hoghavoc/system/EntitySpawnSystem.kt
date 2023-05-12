@@ -1,9 +1,11 @@
 package com.fatih.hoghavoc.system
 
+import com.badlogic.gdx.graphics.g2d.Animation
 import com.badlogic.gdx.maps.MapObject
 import com.badlogic.gdx.maps.objects.RectangleMapObject
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.BodyDef
+import com.badlogic.gdx.physics.box2d.BodyDef.BodyType
 import com.badlogic.gdx.physics.box2d.World
 import com.badlogic.gdx.scenes.scene2d.Event
 import com.badlogic.gdx.scenes.scene2d.EventListener
@@ -22,9 +24,7 @@ import ktx.box2d.box
 import ktx.box2d.circle
 import ktx.box2d.edge
 import ktx.math.times
-import ktx.tiled.layer
-import ktx.tiled.x
-import ktx.tiled.y
+import ktx.tiled.*
 import kotlin.experimental.or
 
 @AllOf([SpawnComponent::class])
@@ -39,19 +39,27 @@ class EntitySpawnSystem(
 
     private fun getSpawnConfig(spawnComp : SpawnComponent) : SpawnConfig = spawnCache.getOrPut(Pair(spawnComp.name,spawnComp.moveRange)){
         when(spawnComp.name){
+            GATE ->{
+                SpawnConfig(
+                    model = EntityModel.DOOR,
+                    bodyType = BodyType.StaticBody,
+                )
+            }
             KING ->{
                 SpawnConfig(
                     model = EntityModel.KING,
                     bodyType = BodyDef.BodyType.DynamicBody,
                     canAttack = true,
+                    critChance = 0.5f,
                     imageScaling = Vector2(1.8f,1.8f),
-                    physicScaling = Vector2(0.22f,0.4f),
-                    physicOffset = Vector2(1.05f,2f),
+                    physicScaling = Vector2(0.2f,0.4f),
+                    physicOffset = Vector2(1.52f,2f),
                     categoryBit = KING_BIT,
                     attackDelay = MELEE_ATTACK_DELAY,
-                    maskBits = KING_PIG_BIT or CANNON_BIT or PIG_BIT or GROUND_BIT or BOX_BIT or COLLISION_DETECT_BIT or ENEMY_AXE_BIT or BOMB_BIT,
+                    maskBits = PORTAL_BIT or KING_PIG_BIT or CANNON_BIT or PIG_BIT or GROUND_BIT or BOX_BIT or COLLISION_DETECT_BIT or ENEMY_AXE_BIT or BOMB_BIT,
                     speedScaling = 0.5f,
                     lifeScaling = 1f,
+                    attackDamage = (500..501),
                     maxLife = 5000f,
                     attackFixtureDestroyDelay = 0.4f,
                 )
@@ -59,19 +67,21 @@ class EntitySpawnSystem(
             KING_PIG ->{
                 SpawnConfig(
                     model = EntityModel.KING_PIG,
-                    bodyType = BodyDef.BodyType.DynamicBody,
-                    physicScaling = Vector2(0.45f,0.6f),
-                    physicOffset = Vector2(0.60f,0f),
+                    bodyType = BodyType.DynamicBody,
+                    physicScaling = Vector2(0.33f,0.6f),
+                    physicOffset = Vector2(0.84f,0.05f),
                     canAttack = true,
-                    attackDelay = MELEE_ATTACK_DELAY,
+                    critChance = 0.7f,
+                    attackDelay = MELEE_ATTACK_DELAY * 2f,
                     categoryBit = KING_PIG_BIT,
+                    attackDamage = (7..10),
                     maskBits = KING_BIT  or BOX_BIT or AXE_BIT or GROUND_BIT or FOOT_BIT or KING_PIG_BIT or BOMB_BIT or CANNON_BIT,
                     speedScaling = 0.3f,
                     lifeScaling = 0.8f,
                     aiTreePath = "ai/slime.tree",
-                    maxLife = 400f,
+                    maxLife = 40f,
                     moveRange = spawnComp.moveRange,
-                    extraAttackRange = 0.9f,
+                    extraAttackRange = 0.7f,
                     attackFixtureDestroyDelay = 0.4f,
                     collisionRange = 3f
                 )
@@ -86,19 +96,24 @@ class EntitySpawnSystem(
                 val extraAttackRange : Float
                 val attackType : AttackType
                 val attackDelay : Float
+                val attackDamage : IntRange
                 val collisionRange :Float
+                var bodyType = BodyType.DynamicBody
+                val critChance : Float
                 val attackFixtureDestroyDelay : Float
                 when (spawnComp.name) {
                     PIG -> {
                         imageOffset = Vector2(1f,1f)
                         speedScaling = 0.8f
-                        physicScaling = Vector2(0.43f,0.5f)
+                        physicScaling = Vector2(0.37f,0.5f)
                         entityModel = EntityModel.PIG
-                        physicOffset = Vector2(0.70f,0f)
-                        extraAttackRange = 0.9f
+                        physicOffset = Vector2(0.84f,0f)
+                        extraAttackRange = 0.7f
+                        critChance = 0.2f
                         collisionRange = 3f
+                        attackDamage = (3..6)
                         attackFixtureDestroyDelay = 0.4f
-                        attackDelay = MELEE_ATTACK_DELAY
+                        attackDelay = MELEE_ATTACK_DELAY * 2f
                         attackType = AttackType.MELEE_ATTACK
                         maskBits = KING_BIT or BOX_BIT or BOMB_BIT or AXE_BIT or GROUND_BIT or FOOT_BIT or PIG_BIT or CANNON_BIT
                     }
@@ -106,13 +121,16 @@ class EntitySpawnSystem(
                         imageOffset = Vector2(0.7f,0.65f)
                         entityModel = EntityModel.PIG_FIRE
                         speedScaling = 0.5f
-                        physicOffset = Vector2(0.33f,0f)
+                        physicOffset = Vector2(0.4f,0f)
                         physicScaling = Vector2(0.54f,0.77f)
                         extraAttackRange = 1f
+                        attackDamage = (30..50)
+                        critChance = 0.1f
                         attackFixtureDestroyDelay = 0.4f
                         collisionRange = 3f
-                        attackDelay = MELEE_ATTACK_DELAY
-                        attackType = AttackType.FIRE
+                        bodyType = BodyType.DynamicBody
+                        attackDelay = CANNON_ATTACK_DELAY
+                        attackType = AttackType.CANNON
                         maskBits = KING_BIT or BOX_BIT or BOX_BIT or BOMB_BIT or AXE_BIT or GROUND_BIT or FOOT_BIT or PIG_BIT or ROOF_BIT
                     }
                     PIG_BOMB -> {
@@ -120,6 +138,8 @@ class EntitySpawnSystem(
                         entityModel = EntityModel.PIG_BOMB
                         physicScaling = Vector2(0.45f,0.55f)
                         speedScaling = 0.5f
+                        critChance = 0.1f
+                        attackDamage = (20..30)
                         attackDelay = BOMB_ATTACK_DELAY
                         extraAttackRange = 2.5f
                         collisionRange = 5f
@@ -134,6 +154,8 @@ class EntitySpawnSystem(
                         physicOffset = Vector2(0.57f,0f)
                         physicScaling = Vector2(0.45f,0.55f)
                         extraAttackRange = 4f
+                        critChance = 0.4f
+                        attackDamage = (10..20)
                         attackFixtureDestroyDelay = 5f
                         attackDelay = BOX_ATTACK_DELAY
                         collisionRange = 8f
@@ -145,12 +167,14 @@ class EntitySpawnSystem(
                 }
                 SpawnConfig(
                     model = entityModel,
-                    bodyType = BodyDef.BodyType.DynamicBody,
+                    bodyType = bodyType,
                     physicScaling = physicScaling,
                     physicOffset = physicOffset,
                     canAttack = true,
                     categoryBit = PIG_BIT,
                     maskBits = maskBits,
+                    critChance = critChance,
+                    attackDamage = attackDamage,
                     attackFixtureDestroyDelay = attackFixtureDestroyDelay,
                     attackType = attackType,
                     attackDelay = attackDelay,
@@ -167,7 +191,7 @@ class EntitySpawnSystem(
             BOX ->{
                 SpawnConfig(
                     model = EntityModel.BOX,
-                    bodyType = BodyDef.BodyType.StaticBody,
+                    bodyType = BodyType.StaticBody,
                     canAttack = false,
                     imageScaling = Vector2(0.63f,0.63f),
                     physicScaling = Vector2(1f,1f),
@@ -182,11 +206,11 @@ class EntitySpawnSystem(
             BOMB ->{
                 SpawnConfig(
                     model = EntityModel.BOMB,
-                    bodyType = BodyDef.BodyType.DynamicBody,
+                    bodyType = BodyType.StaticBody,
                     canAttack = false,
                     imageScaling = Vector2(1.5f,1.5f),
-                    physicScaling = Vector2(0.23f,0.23f),
-                    physicOffset = Vector2(1.19f,0.9f),
+                    physicScaling = Vector2(0.25f,0.23f),
+                    physicOffset = Vector2(1.27f,1.1f),
                     categoryBit = BOMB_BIT,
                     maskBits = GROUND_BIT or ROOF_BIT or BOX_BIT or KING_BIT or KING_PIG_BIT or PIG_BIT or FOOT_BIT or ENEMY_FOOT_BIT or BOMB_BIT or CANNON_BIT,
                     speedScaling = 0f,
@@ -197,8 +221,8 @@ class EntitySpawnSystem(
             CANNON ->{
                 SpawnConfig(
                     model = EntityModel.CANNON,
-                    bodyType = BodyDef.BodyType.DynamicBody,
-                    canAttack = false,
+                    bodyType = BodyDef.BodyType.StaticBody,
+                    canAttack = true,
                     imageScaling = Vector2(1.57f,1f),
                     physicScaling = Vector2(0.55f,0.63f),
                     physicOffset = Vector2(1.2f,0.25f),
@@ -219,11 +243,10 @@ class EntitySpawnSystem(
         val spawnConfig = getSpawnConfig(spawnComponent)
         spawnComponent.run {
             world.entity { spawnEntity->
-                val imageSize = Vector2(
-                    DEFAULT_ENTITY_SIZE * spawnConfig.imageScaling.x,
-                    DEFAULT_ENTITY_SIZE * spawnConfig.imageScaling.y)
+                val imageSize = Vector2(width,height)
                 add<ImageComponent>{
-                    image = FlipImage().apply {
+                    image = FlipImage(flipX = flipX).apply {
+                        if (spawnConfig.model == EntityModel.KING) isPlayer = true
                         setSize(imageSize.x,imageSize.y)
                         setPosition(location.x,location.y)
                     }
@@ -246,6 +269,12 @@ class EntitySpawnSystem(
                                 AnimationType.IDLE
                             }
                         }
+                        EntityModel.DOOR->{
+                            isDoor = true
+                            playMode = Animation.PlayMode.NORMAL
+                            frameDuration = DEFAULT_FRAME_DURATION * 2f
+                            AnimationType.OPENING
+                        }
                         else -> {
                             AnimationType.IDLE
                         }
@@ -258,24 +287,32 @@ class EntitySpawnSystem(
                 }
                 physicComponent = add{
                     size.set(imageSize * spawnConfig.physicScaling)
+                    if (spawnConfig.model == EntityModel.CANNON && flipX) {
+                        spawnConfig.physicOffset.set(
+                            0.2f,0.25f
+                        )
+                        println("flipped")
+                        println(spawnConfig.physicOffset)
+                    }
                     offset.set(spawnConfig.physicOffset)
+                    //for image physic system
                     body = physicWorld.body(spawnConfig.bodyType){
                         fixedRotation = true
                         position.set(location.x + size.x * 0.5f ,location.y + size.y * 0.5f)
                         if (spawnConfig.model == EntityModel.BOMB || spawnConfig.model == EntityModel.CANNON) linearDamping = 1f
                         userData = spawnEntity
                         box(size.x,size.y,offset){
-                            isSensor = false
+                            isSensor = spawnConfig.model == EntityModel.DOOR
                             filter.categoryBits = spawnConfig.categoryBit
                             filter.maskBits = spawnConfig.maskBits
                             friction = 0f
-                            if (spawnConfig.model == EntityModel.BOMB) density = 150f
+                            if (spawnConfig.model == EntityModel.PIG_FIRE) density = 500f
                             if (spawnConfig.model == EntityModel.CANNON) density = 200f
                             restitution = 0f
                             userData = spawnEntity
                         }
                         if (spawnConfig.model == EntityModel.PIG_BOX){
-                            box(1.15f,1f,position = Vector2(0.55f,0.45f)){
+                            box(1.15f,1f,position = Vector2(0.55f,0.55f)){
                                 filter.categoryBits = BOX_BIT
                                 filter.maskBits = KING_BIT or GROUND_BIT or FOOT_BIT or ENEMY_FOOT_BIT
                                 density = 100f
@@ -284,7 +321,7 @@ class EntitySpawnSystem(
                         }
                         if (spawnConfig.model == EntityModel.KING){
                             imageScaleDirection = -0.5f
-                            edge(1.1f,1f,1.1f,1.5f){
+                            edge(1.5f,1f,1.5f,1.5f){
                                 isSensor = true
                                 userData = spawnEntity
                                 filter.categoryBits = FOOT_BIT
@@ -292,9 +329,9 @@ class EntitySpawnSystem(
                             }
 
                         }else if(spawnConfig.speedScaling != 0f && spawnConfig.model != EntityModel.BOX && spawnConfig.model != EntityModel.CANNON && spawnConfig.model != EntityModel.BOMB){
-
-                            val x = if (spawnConfig.model == EntityModel.PIG_BOX || spawnConfig.model == EntityModel.KING_PIG) 0.6f else  0.7f
-                            val yVector = if (spawnConfig.model != EntityModel.KING_PIG && spawnConfig.model == EntityModel.PIG_BOX) Vector2(-0.5f,-0.3f) else Vector2(-0.7f,-0.4f)
+                            println(spawnConfig.model)
+                            val x = if (spawnConfig.model == EntityModel.PIG_BOX) 0.6f else if(spawnConfig.model == EntityModel.PIG || spawnConfig.model == EntityModel.KING_PIG) 0.75f else 0.35f
+                            val yVector = if(spawnConfig.model == EntityModel.PIG || spawnConfig.model == EntityModel.KING_PIG) Vector2(-0.7f,-0.3f) else Vector2(-0.7f,-0.4f)
                             edge(x,yVector.x,x,yVector.y){
                                 isSensor = true
                                 userData = spawnEntity
@@ -304,19 +341,19 @@ class EntitySpawnSystem(
                         }
                     }
                 }
+                setImageOffset(spawnConfig.model,physicComponent.size)
+                if (spawnConfig.model == EntityModel.CANNON){
+                    println(physicComponent.imageOffset)
+                    println(physicComponent.flipImageOffset)
+                    println(physicComponent.body.position)
+                }
                 if (spawnConfig.canAttack){
                     add<AttackComponent>{
                         attackState = AttackState.READY
                         if (spawnConfig.model != EntityModel.KING)
                             attackOnEnemy = false
-                        when(spawnConfig.model){
-                            //SPAWNCONFIGE TAŞI PIGBOX YANLIS YERDE
-                            EntityModel.KING_PIG->{attackDamage = (1..6)}
-                            EntityModel.PIG->{attackDamage = (1..3)}
-                            EntityModel.KING->{attackDamage = (1..7)}
-
-                            else -> Unit
-                        }
+                        criticalHitChance = spawnConfig.critChance
+                        attackDamage = spawnConfig.attackDamage
                         delay = spawnConfig.attackDelay
                         maxDelay = spawnConfig.attackDelay
                         attackRange = spawnConfig.extraAttackRange
@@ -336,17 +373,14 @@ class EntitySpawnSystem(
                         maxLife = spawnConfig.maxLife
                         life = maxLife
                         regenerationSpeed = 0f
-                        takeDamage = 0f
+                        takeDamage = 0
                     }
-                }
-                if (spawnConfig.bodyType != BodyDef.BodyType.StaticBody){
-                    add<CollisionComponent>()
                 }
 
                 if (spawnConfig.model == EntityModel.KING){
                     add<PlayerComponent>()
                     add<PlayerStateComponent>()
-                }else if (spawnConfig.model != EntityModel.BOX){
+                }else if (spawnConfig.model !in setOf(EntityModel.BOX, EntityModel.BOMB, EntityModel.CANNON, EntityModel.DOOR)){
                     add<EnemyComponent>{
                         entityModel = spawnConfig.model
                     }
@@ -381,10 +415,16 @@ class EntitySpawnSystem(
                             )
                             userData = entity
                             box(size.x,size.y){
-                                filter.categoryBits = if(mapObject.name == "Roof") ROOF_BIT else GROUND_BIT
+                                filter.categoryBits = if(mapObject.name == "Roof") ROOF_BIT else if(mapObject.name == "Portal") PORTAL_BIT else GROUND_BIT
                                 restitution = 0f
                                 friction = 0f
-                                isSensor = false
+                                userData = mapObject.properties.get("toMap")?.let {
+                                    it as String
+                                }?:""
+                                if (mapObject.name == "Portal"){
+                                    isSensor = true
+                                    filter.maskBits = KING_BIT
+                                }
                             }
                         }
                     }
@@ -417,10 +457,16 @@ class EntitySpawnSystem(
                     val identify = mapObject.properties.get("identify")?.let {
                         it as String
                     }
+                    val flipX = mapObject.properties.get("flipX")?.let {
+                        it as Boolean
+                    }?:false
 
                     world.entity {
                         add<SpawnComponent>{
                             name = objName
+                            this.flipX = flipX
+                            width = mapObject.width * UNIT_SCALE
+                            height = mapObject.height * UNIT_SCALE
                             this.identify = identify?: ""
                             this.moveRange = moveRange?:0f
                             location.set(
@@ -431,6 +477,25 @@ class EntitySpawnSystem(
                     }
                 }
 
+                val portalLayer = event.map.layer("Portals")
+                portalLayer.objects.forEach {mapObject->
+                    if (mapObject.name == "Portal"){
+                        createCollisionObjects(mapObject)
+                    }
+                    if(mapObject.name == "Gate"){
+                        world.entity {
+                            add<SpawnComponent>{
+                                name = mapObject.name
+                                width = mapObject.width * UNIT_SCALE
+                                height = mapObject.height * UNIT_SCALE
+                                location.set(
+                                    mapObject.x * UNIT_SCALE,
+                                    mapObject.y * UNIT_SCALE
+                                )
+                            }
+                        }
+                    }
+                }
 
                 val collisionLayer = event.map.layer("CollisionLayer")
                 collisionLayer.objects.forEach { mapObject ->
@@ -441,6 +506,79 @@ class EntitySpawnSystem(
             else -> false
         }
     }
+
+    private fun setImageOffset(entityModel: EntityModel,size:Vector2){
+        physicComponent.imageOffset.set(
+            physicComponent.size.x * 0.5f,
+            0f
+        )
+        physicComponent.flipImageOffset.set(
+            physicComponent.size.x * 0.13f,0f
+        )
+        when(entityModel){
+           EntityModel.CANNON ->{
+                physicComponent.imageOffset.set(
+                    physicComponent.size.x * 0.5f,
+                    0f
+                )
+               physicComponent.flipImageOffset.set(
+                   physicComponent.size.x *  0.5f,0f
+               )
+            }
+            EntityModel.KING ->{
+                physicComponent.imageOffset.set(
+                    physicComponent.size.x * 0.5f,
+                    0f
+                )
+                physicComponent.flipImageOffset.set(
+                    physicComponent.size.x * 1.4f,
+                    0f
+                )
+            }
+
+            EntityModel.PIG -> {
+                physicComponent.imageOffset.set(
+                    physicComponent.size.x * 0.5f,
+                    0f
+                )
+                physicComponent.flipImageOffset.set(
+                    physicComponent.size.x * 0.13f,
+                    0f
+                )
+            }
+            EntityModel.KING_PIG -> {
+                physicComponent.imageOffset.set(
+                     physicComponent.size.x * 0.5f,
+                    -0.1f
+                )
+                physicComponent.flipImageOffset.set(
+                    physicComponent.size.x * 0.4f,0f
+                )
+            }
+            EntityModel.PIG_BOMB ->{
+                physicComponent.imageOffset.set(
+                    physicComponent.size.x * 0.5f,
+                    0f
+                )
+                physicComponent.flipImageOffset.set(
+                    physicComponent.size.x * 0.8f,
+                    0f
+                )
+            }
+            EntityModel.PIG_FIRE ->{
+                physicComponent.imageOffset.set(
+                    physicComponent.size.x * 0.5f,
+                    0f
+                )
+                physicComponent.flipImageOffset.set(
+                    physicComponent.size.x * 0.5f,
+                    0f
+                )
+            }
+            else -> Unit
+        }
+    }
+
 
     companion object{
         const val BOX_ON_HEAD = "BoxOnHead"

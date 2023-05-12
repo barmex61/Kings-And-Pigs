@@ -11,6 +11,7 @@ data class MoveComponent(
     var root : Boolean = false,
     var canJump : Boolean = true,
     var moveRange : Float = 0f,
-    var timeBetweenJumps : Long = TimeUtils.millis(),
+    var timeBetweenJumps : Long = 0L,
+    var moveIn : Boolean = false,
 )
 

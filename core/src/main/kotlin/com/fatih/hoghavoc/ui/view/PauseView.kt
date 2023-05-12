@@ -3,8 +3,12 @@ package com.fatih.hoghavoc.ui.view
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.graphics.Texture
+import com.badlogic.gdx.math.Interpolation
+import com.badlogic.gdx.scenes.scene2d.actions.Actions
+import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.ui.Table
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Align
 import com.fatih.hoghavoc.ui.Labels
@@ -12,6 +16,9 @@ import ktx.scene2d.*
 import ktx.style.set
 
 class PauseView(skin:Skin) : KTable,Table(skin) {
+
+    val pauseLabel : Label
+    val backGround : Drawable
 
     init {
         setFillParent(true)
@@ -22,12 +29,14 @@ class PauseView(skin:Skin) : KTable,Table(skin) {
                 })
             )
         }
-        background = skin.get(pixMapKey,TextureRegionDrawable::class.java)
-        label("Pause",Labels.LARGE.skinKey){
+        backGround = skin.get(pixMapKey,TextureRegionDrawable::class.java)
+        background = backGround
+        pauseLabel = label("Pause",Labels.LARGE.skinKey){
             it.grow()
             this.setAlignment(Align.center)
         }
     }
+
 
     companion object{
         private val pixMapKey = "PixMapKey"
