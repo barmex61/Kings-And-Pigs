@@ -20,6 +20,16 @@ const val PIG_BOMB = "Pig_bomb"
 const val CANNON = "Cannon"
 const val GATE = "Gate"
 
+const val ATTACK_ON_AIR = "audio/flyattack.ogg"
+const val ATTACK_ON_GROUND = "audio/groundattack.ogg"
+const val CANNON_FIRE = "audio/cannon_fire.ogg"
+const val CANNON_EXPLOSION = "audio/cannon_explosion.ogg"
+const val BOMB_SOUND = "audio/bomb.ogg"
+const val JUMP1 = "audio/jump1.wav"
+const val JUMP2 = "audio/jump2.wav"
+const val PLAYER_HIT = "audio/player_hit.wav"
+const val PLAYER_HIT2 = "audio/player_hit2.wav"
+
 const val UNIT_SCALE = 1/16f
 const val DEFAULT_FRAME_DURATION = 1/10f
 const val DEFAULT_SPEED = 2f
@@ -29,6 +39,7 @@ const val BOX_ATTACK_DELAY = 1f
 const val MELEE_ATTACK_DELAY = 0.6f
 const val BOMB_ATTACK_DELAY = 2f
 const val CANNON_ATTACK_DELAY =  5f
+const val DIALOG_DURATION = 2f
 
 const val KING_BIT : Short = 16
 const val KING_PIG_BIT : Short = 1

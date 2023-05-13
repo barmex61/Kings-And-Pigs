@@ -44,7 +44,9 @@ class DeadSystem(
                         physicWorld.destroyBody(it)
                     }
                 }
-                physicWorld.destroyBody(physicComps[entity].body)
+                physicComps[entity].body?.let {
+                    physicWorld.destroyBody(physicComps[entity].body)
+                }
                 world.remove(entity)
             }
         }

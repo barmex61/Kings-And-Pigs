@@ -55,7 +55,6 @@ class AnimationSystem(
 
                 if (!isScaled && animType == AnimationType.DEAD){
                     imageComponent.image.run {
-                        println(deadImageScale)
                         setSize(width*deadImageScale,height*deadImageScale)
                     }
                     isScaled = true

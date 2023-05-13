@@ -2,6 +2,7 @@ package com.fatih.hoghavoc.component
 
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.fatih.hoghavoc.actors.FlipImage
+import com.fatih.hoghavoc.utils.DIALOG_DURATION
 import com.github.quillraven.fleks.ComponentListener
 import com.github.quillraven.fleks.Entity
 

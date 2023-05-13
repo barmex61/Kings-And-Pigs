@@ -7,7 +7,10 @@ import com.badlogic.gdx.ai.btree.annotation.TaskAttribute
 import com.badlogic.gdx.ai.utils.random.FloatDistribution
 import com.badlogic.gdx.graphics.g2d.Animation
 import com.fatih.hoghavoc.component.AnimationType
+import com.fatih.hoghavoc.component.DialogType
 import com.fatih.hoghavoc.component.TextureType
+import com.fatih.hoghavoc.events.AttackEvent
+import com.fatih.hoghavoc.events.EnemyAttackEvent
 import com.fatih.hoghavoc.events.EnemyDamageEvent
 import com.fatih.hoghavoc.utils.DEFAULT_FRAME_DURATION
 import com.fatih.hoghavoc.utils.fireEvent
@@ -35,7 +38,7 @@ class IdleTask(
         }
         deltaTime = GdxAI.getTimepiece().deltaTime
         if (status != Status.RUNNING){
-
+            entity.changeDialog(DialogType.values().let { it[(it.indices).random()] })
             entity.stopMovement()
             entity.startAnimation(AnimationType.IDLE,Animation.PlayMode.LOOP, DEFAULT_FRAME_DURATION)
             currentDuration = duration?.nextFloat() ?: 1f
@@ -71,7 +74,7 @@ class WanderTask : Action(){
          //   println("wander")
         }
         if (status != Status.RUNNING){
-
+            entity.changeDialog(if ((0f..1f).random() <= 0.5f) DialogType.HELLO else DialogType.HI)
             entity.startAnimation(AnimationType.RUN,Animation.PlayMode.LOOP, DEFAULT_FRAME_DURATION * 2f)
             if (startLocation.isZero){
                 startLocation.set(entity.location)
@@ -107,7 +110,6 @@ class WanderTask : Action(){
 
 class MeleeAttackTask : Action(){
     override fun execute(): Status {
-        println("attack")
         deltaTime = GdxAI.getTimepiece().deltaTime
         if (entity.entity.id == 38){
           //  println("melee")
@@ -116,8 +118,10 @@ class MeleeAttackTask : Action(){
             return Status.FAILED
         }
         if (status != Status.RUNNING){
+            entity.changeDialog(DialogType.ATTACK)
             entity.faceToKing()
-            entity.gameStage.fireEvent(EnemyDamageEvent(entity.entity))
+            entity.gameStage.fireEvent(EnemyAttackEvent(entity.entity))
+            entity.fireEvent = true
             entity.startAnimation(AnimationType.ATTACK, Animation.PlayMode.NORMAL, DEFAULT_FRAME_DURATION )
             entity.stopMovement()
             entity.startAttack()
@@ -143,8 +147,9 @@ class RangeAttackTask : Action(){
             return Status.FAILED
         }
         if (status != Status.RUNNING){
+            entity.changeDialog(DialogType.ATTACK)
             entity.faceToKing()
-            entity.gameStage.fireEvent(EnemyDamageEvent(entity.entity))
+            entity.gameStage.fireEvent(EnemyAttackEvent(entity.entity))
             entity.startAnimation(AnimationType.ATTACK, Animation.PlayMode.NORMAL, DEFAULT_FRAME_DURATION )
             entity.stopMovement()
             entity.startAttack()
@@ -187,7 +192,6 @@ class JumpTask : Action(){
           //  println("jump")
         }
         if(status != Status.RUNNING){
-
             entity.startTexture(TextureType.JUMP)
             return Status.RUNNING
         }
@@ -210,9 +214,9 @@ class HitTask(
         deltaTime -= GdxAI.getTimepiece().deltaTime
         if (entity.entity.id == 38){
         }
-        println(entity.entity.id)
 
         if (status != Status.RUNNING){
+            entity.changeDialog(if((0f..1f).random() <= 0.5f) DialogType.LOSER else DialogType.WTF )
             entity.startAnimation(AnimationType.HIT,Animation.PlayMode.NORMAL, DEFAULT_FRAME_DURATION * 1.5f)
             deltaTime = duration?.nextFloat()?:1.5f
             entity.stopMovement()
@@ -242,6 +246,7 @@ class CycleTask: Action(){
             entity.startAttack()
             entity.startAnimation(AnimationType.USE,Animation.PlayMode.NORMAL,DEFAULT_FRAME_DURATION *2f)
             entity.startCannonAttack()
+            entity.changeDialog(DialogType.LOSER)
         }
         if (entity.isAnimationFinished(AnimationType.USE)){
             entity.startAnimation(AnimationType.PREPARE,Animation.PlayMode.NORMAL, DEFAULT_FRAME_DURATION*2f)
@@ -267,7 +272,7 @@ class FocusTask : Action(){
             timeCount += 0.2f
         }
         if (status != Status.RUNNING){
-
+            entity.changeDialog(DialogType.QUESTION)
             entity.startAnimation(AnimationType.RUN,Animation.PlayMode.LOOP, DEFAULT_FRAME_DURATION / 0.7f)
             entity.moveTo(entity.playerTarget,true)
             return Status.RUNNING

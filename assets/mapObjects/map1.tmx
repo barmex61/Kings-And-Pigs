@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.9" tiledversion="1.9.2" orientation="orthogonal" renderorder="right-down" width="16" height="8" tilewidth="32" tileheight="32" infinite="0" nextlayerid="8" nextobjectid="85">
+<map version="1.9" tiledversion="1.9.2" orientation="orthogonal" renderorder="right-down" width="16" height="8" tilewidth="32" tileheight="32" infinite="0" nextlayerid="8" nextobjectid="86">
  <properties>
-  <property name="Music" value="mapmusic.mp3"/>
+  <property name="music" value="audio/mapmusic.mp3"/>
  </properties>
  <tileset firstgid="1" source="tileset1.tsx"/>
  <tileset firstgid="513" source="entities.tsx"/>
@@ -36,11 +36,11 @@
   <object id="34" x="31.5966" y="87" width="54.625" height="8"/>
   <object id="35" x="87.25" y="55.25" width="400.19" height="8"/>
   <object id="37" x="375.455" y="192.182" width="113.16" height="8"/>
-  <object id="38" x="352.563" y="160.813" width="31.25" height="8"/>
   <object id="39" x="87.159" y="224.413" width="273.764" height="8"/>
   <object id="40" x="192.083" y="160.5" width="62.5417" height="9"/>
   <object id="41" name="Roof" x="351.727" y="96.3068" width="64.1477" height="3.5"/>
-  <object id="42" name="Roof" x="320.079" y="160.87" width="31.502" height="3.5"/>
+  <object id="42" name="Roof" x="320.079" y="160.87" width="31.6583" height="3.5"/>
+  <object id="85" x="352" y="160.87" width="32" height="10"/>
  </objectgroup>
  <objectgroup id="7" name="Portals" opacity="0.99">
   <object id="80" name="Gate" gid="523" x="416" y="192" width="46" height="56"/>

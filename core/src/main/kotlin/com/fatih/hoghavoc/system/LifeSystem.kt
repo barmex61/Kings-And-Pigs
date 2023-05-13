@@ -12,17 +12,13 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.utils.TimeUtils
 import com.fatih.hoghavoc.utils.*
 import com.fatih.hoghavoc.component.*
-import com.fatih.hoghavoc.events.EnemyDamageEvent
-import com.fatih.hoghavoc.events.EnemyHitPlayerEvent
-import com.fatih.hoghavoc.events.PlayerDamageEvent
-import com.fatih.hoghavoc.events.PlayerHitEnemyEvent
+import com.fatih.hoghavoc.events.*
 import com.github.quillraven.fleks.AllOf
 import com.github.quillraven.fleks.ComponentMapper
 import com.github.quillraven.fleks.Entity
 import com.github.quillraven.fleks.IteratingSystem
 import ktx.assets.disposeSafely
 import ktx.math.random
-import kotlin.math.abs
 
 @AllOf([LifeComponent::class])
 class LifeSystem(
@@ -39,7 +35,10 @@ class LifeSystem(
     private lateinit var lifeComponent: LifeComponent
     private lateinit var physicComponent: PhysicComponent
     private lateinit var animationComponent: AnimationComponent
-    private val entityHitTimer = hashMapOf<Entity,Long>()
+    private var playerHitTimer = 0L
+    private var enemyHitTimer = 0L
+    private val playerHitEntityTimer = hashMapOf<Int,Long>()
+    private val entityHitPlayerTimer = hashMapOf<Int,Long>()
     private var text = ""
 
     private val damageFont = BitmapFont(Gdx.files.internal("font/damage.fnt")).apply {
@@ -100,38 +99,30 @@ class LifeSystem(
     override fun handle(event: Event): Boolean {
         return when(event) {
             is PlayerHitEnemyEvent ->{
-                val time = entityHitTimer.getOrPut(event.enemyEntity){
-                    lifeComps.getOrNull(event.enemyEntity)?.let {lifeComponent->
-                        lifeComponent.takeDamage = attackComps[event.playerEntity].let {
-                            if (Math.random() < it.criticalHitChance) it.attackDamage.random() * 2 else it.attackDamage.random()
-                        }
-                    }
-                    TimeUtils.millis()
-                }
-                if (TimeUtils.millis() - time >= TIME_BETWEEN_ATTACKS){
-                    lifeComps.getOrNull(event.enemyEntity)?.let{lifeComponent->
-                        lifeComponent.takeDamage= attackComps[event.playerEntity].let {
-                            if (Math.random() < it.criticalHitChance) it.attackDamage.random()* 2 else it.attackDamage.random()
-                        }
-                    }
-                }
-                entityHitTimer[event.enemyEntity] = TimeUtils.millis()
+
+              lifeComps.getOrNull(event.enemyEntity)?.let{lifeComponent->
+                  lifeComponent.takeDamage= attackComps[event.playerEntity].let {
+                      if (Math.random() < it.criticalHitChance) it.attackDamage.random()* 2 else it.attackDamage.random()
+                  }
+                 }
+
                 true
             }
 
             is EnemyHitPlayerEvent -> {
-                event.enemyEntity?.let {
-                    lifeComps.getOrNull(event.playerEntity)?.let{lifeComponent->
-                        lifeComponent.run {
-                            takeDamage= attackComps.getOrNull(event.enemyEntity)?.let {
-                                it.attackDamage.random() * if ((0f..1f).random() < it.criticalHitChance) {
-                                    critHit = true
-                                    2
-                                } else 1
-                            }?: 0
-                        }
+
+                lifeComps.getOrNull(event.playerEntity)?.let{lifeComponent->
+                    lifeComponent.run {
+                        takeDamage= attackComps.getOrNull(event.enemyEntity)?.let {
+                            it.attackDamage.random() * if ((0f..1f).random() < it.criticalHitChance) {
+                                critHit = true
+                                2
+                            } else 1
+                        }?: 0
                     }
                 }
+                gameStage.fireEvent(AttackEvent(event.soundPath?:"",true))
+
                 true
             }
             else -> false

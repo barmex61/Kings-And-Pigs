@@ -23,7 +23,6 @@ sealed class PlayerState : EntityState {
     object DOOR_IN : PlayerState(){
         override fun enter(entity: PlayerAiEntity) {
             entity.root(true)
-            println("moveinYesSir")
             entity.startAnimation(AnimationType.DOOR_IN,Animation.PlayMode.NORMAL, DEFAULT_FRAME_DURATION * 2.5f)
         }
 
@@ -75,6 +74,7 @@ sealed class PlayerState : EntityState {
     object JUMP : PlayerState(){
         override fun enter(entity: PlayerAiEntity) {
             entity.setTexture(TextureType.JUMP)
+            entity.fireJumpEvent = true
         }
 
         override fun update(entity: PlayerAiEntity) {
@@ -107,6 +107,7 @@ sealed class PlayerState : EntityState {
 
     object ATTACK : PlayerState(){
         override fun enter(entity: PlayerAiEntity) {
+            entity.fireEvent = true
             entity.startAnimation(AnimationType.ATTACK,Animation.PlayMode.NORMAL, DEFAULT_FRAME_DURATION )
         }
 

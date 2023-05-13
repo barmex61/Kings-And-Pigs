@@ -5,6 +5,7 @@ import com.badlogic.gdx.scenes.scene2d.EventListener
 import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.fatih.hoghavoc.component.*
+import com.fatih.hoghavoc.events.EnemyAttackEvent
 import com.fatih.hoghavoc.events.EnemyDamageEvent
 import com.fatih.hoghavoc.events.PlayerDamageEvent
 import com.fatih.hoghavoc.ui.Drawables
@@ -32,7 +33,7 @@ class GameModel (
 
     override fun handle(event: Event): Boolean {
         return  when(event){
-            is EnemyDamageEvent->{
+            is EnemyAttackEvent->{
                 val drawable = if (enemyComps[event.entity].entityModel == EntityModel.PIG) Drawables.PIG_PORTRE else Drawables.KING_PIG_PORTRE
                 enemyImage.setValue(enemyImageHashMap.getOrPut(drawable){
                     Image(skin[drawable])

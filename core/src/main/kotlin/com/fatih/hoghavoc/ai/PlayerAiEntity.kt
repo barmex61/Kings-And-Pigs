@@ -61,6 +61,20 @@ class PlayerAiEntity(
         get() = animationComponent.isAnimationDone(AnimationType.ATTACK)
 
 
+    var fireEvent : Boolean = false
+        get() = attackComponent.fireEvent
+        set(value) {
+            attackComponent.fireEvent = value
+            field = value
+        }
+
+    var fireJumpEvent : Boolean = false
+        get() = moveComponent.fireEvent
+        set(value) {
+            moveComponent.fireEvent = value
+            field = value
+        }
+
     fun startAnimation(animationType: AnimationType,playMode: PlayMode,frameDuration : Float = DEFAULT_FRAME_DURATION ) {
         animationComponent.nextAnimation(animationType,playMode,frameDuration)
     }

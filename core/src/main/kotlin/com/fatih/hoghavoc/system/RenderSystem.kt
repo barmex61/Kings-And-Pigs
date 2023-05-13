@@ -33,13 +33,13 @@ class RenderSystem (
 
     override fun onAlpha(alpha: Float) {
         gameStage.run{
+            act(deltaTime)
             mapRenderer.batch.use {
                 tiledMapTileLayer.forEach { layer->
                     mapRenderer.renderTileLayer(layer)
                 }
             }
             draw()
-            act(deltaTime)
         }
         uiStage.run {
             act(deltaTime)

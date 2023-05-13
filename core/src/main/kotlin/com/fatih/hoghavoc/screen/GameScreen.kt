@@ -26,7 +26,7 @@ import com.fatih.hoghavoc.ui.view.GameView
 import com.fatih.hoghavoc.ui.view.PauseView
 import com.fatih.hoghavoc.ui.view.gameView
 import com.fatih.hoghavoc.ui.view.pauseView
-import com.fatih.hoghavoc.utils.NOTHING_BIT
+import com.fatih.hoghavoc.utils.AudioManager
 import com.fatih.hoghavoc.utils.fireEvent
 import com.github.quillraven.fleks.World
 import com.github.quillraven.fleks.world
@@ -34,7 +34,6 @@ import ktx.actors.alpha
 import ktx.app.KtxScreen
 import ktx.assets.disposeSafely
 import ktx.box2d.createWorld
-import ktx.collections.isNotEmpty
 import ktx.scene2d.actors
 
 
@@ -68,11 +67,13 @@ class GameScreen(private val gameStage:Stage,private val uiStage: Stage) : KtxSc
             add<PlayerStateComponent.Companion.StateComponentListener>()
             add<AiComponent.Companion.AiComponentListener>()
             add<AttackFixtureComponent.Companion.AttackFixtureComponentListener>()
+            add<DialogComponent.Companion.DialogComponentListener>()
         }
 
         systems {
             add<EntitySpawnSystem>()
             add<AnimationSystem>()
+            add<DialogSystem>()
             add<MoveSystem>()
             add<PhysicSystem>()
             add<AttackSystem>()
@@ -82,7 +83,6 @@ class GameScreen(private val gameStage:Stage,private val uiStage: Stage) : KtxSc
             add<FloatingTextSystem>()
             add<StateSystem>()
             add<AiSystem>()
-            add<AudioSystem>()
             add<RenderSystem>()
             add<CameraSystem>()
             add<DebugSystem>()
@@ -102,11 +102,12 @@ class GameScreen(private val gameStage:Stage,private val uiStage: Stage) : KtxSc
         }
         gameStage.run {
             addListener(gameModel)
+            addListener(AudioManager)
             addListener(this@GameScreen)
         }
         keyboardInputProcessor = KeyboardInputProcessor(world, gameStage = gameStage, alphaChangeLambda = gameView.changeAlphaLambda)
         gameView.addInputListener(keyboardInputProcessor)
-
+        gameStage.isDebugAll = true
     }
 
     override fun show() {

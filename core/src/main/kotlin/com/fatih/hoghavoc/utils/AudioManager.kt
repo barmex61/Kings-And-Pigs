@@ -1,69 +1,70 @@
-package com.fatih.hoghavoc.system
+package com.fatih.hoghavoc.utils
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.audio.Music
 import com.badlogic.gdx.audio.Sound
 import com.badlogic.gdx.scenes.scene2d.Event
 import com.badlogic.gdx.scenes.scene2d.EventListener
-import com.fatih.hoghavoc.events.AttackEvent
-import com.fatih.hoghavoc.events.EnemyDamageEvent
-import com.fatih.hoghavoc.events.MapChangeEvent
-import com.fatih.hoghavoc.events.PauseEvent
-import com.github.quillraven.fleks.IntervalSystem
+import com.fatih.hoghavoc.events.*
 import ktx.tiled.propertyOrNull
 
 
-class AudioSystem : IntervalSystem() , EventListener {
+object AudioManager : EventListener {
 
-    private val soundRequest = hashMapOf<String,Sound>()
     private val soundCache = hashMapOf<String,Sound>()
-    private val attackOnGroundSoundPath = "audio/groundattack.ogg"
-    private val attackOnAirSoundPath = "audio/flyattack.ogg"
     private var randomPath = "audio/giant1.wav"
     private var random = 1
     private var music : Music? = null
+    private var pitch = 1f
 
-    override fun onTick() {
-        soundRequest.values.forEach { sound ->
-            sound.play(0.3f)
-        }
-        soundRequest.clear()
-    }
 
     override fun handle(event: Event?): Boolean {
         return when(event){
             is MapChangeEvent ->{
                 music?.stop()
                 music = event.map.propertyOrNull<String>("music")?.let {path->
-                    Gdx.audio.newMusic(Gdx.files.internal("audio/$path")).apply {
+                    Gdx.audio.newMusic(Gdx.files.internal(path)).apply {
                         isLooping = true
-                        volume = 0.15f
+                        volume = 0.13f
                         play()
                     }
                 }
                 true
             }
+
             is AttackEvent ->{
-                if (event.onAir){
-                    if (attackOnAirSoundPath in soundRequest) return true
-                    soundRequest[attackOnAirSoundPath] = soundCache.getOrPut(attackOnAirSoundPath){
-                        Gdx.audio.newSound(Gdx.files.internal(attackOnAirSoundPath))
+                val path = event.soundPath
+                var volume = 0.10f
+                pitch = when (path) {
+                    CANNON_EXPLOSION -> 0.5f
+                    BOMB_SOUND -> {
+                        volume = 0.07f
+                        1.5f
                     }
-                }else{
-                    if (attackOnGroundSoundPath in soundRequest ) return true
-                    soundRequest[attackOnGroundSoundPath] = soundCache.getOrPut(attackOnGroundSoundPath){
-                        Gdx.audio.newSound(Gdx.files.internal(attackOnGroundSoundPath))
+                    else -> 1f
+                }
+                if (event.isPlayerGetHit){
+                    val playerHitPath = if ((1..2).random() == 1) PLAYER_HIT else PLAYER_HIT2
+                    soundCache.getOrPut(playerHitPath){
+                        Gdx.audio.newSound(Gdx.files.internal(playerHitPath))
+                    }.apply {
+                        this.stop()
+                        this.play(0.10f,1.08f,0f)
                     }
                 }
+                if (path.isEmpty()) return true
+                soundCache.getOrPut(path){
+                    Gdx.audio.newSound(Gdx.files.internal(path))
+                }.play(volume, pitch,0f)
+
                 true
             }
             is EnemyDamageEvent ->{
                 random = (1..5).random()
                 randomPath = "audio/giant$random.wav"
-                if (randomPath in soundRequest) return true
-                soundRequest[randomPath] = soundCache.getOrPut(randomPath){
+                soundCache.getOrPut(randomPath){
                     Gdx.audio.newSound(Gdx.files.internal(randomPath))
-                }
+                }.play(0.06f,1.15f,0f)
                 true
             }
             is PauseEvent -> {
@@ -78,6 +79,14 @@ class AudioSystem : IntervalSystem() , EventListener {
                         it.resume()
                     }
                 }
+                true
+            }
+
+            is JumpEvent ->{
+                val path = if((1..2).random() == 1) JUMP1 else JUMP2
+                soundCache.getOrPut(path){
+                    Gdx.audio.newSound(Gdx.files.internal(path))
+                }.play(0.10f,1.15f,0f)
                 true
             }
             else -> false

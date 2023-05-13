@@ -25,6 +25,7 @@ import ktx.box2d.circle
 import ktx.box2d.edge
 import ktx.math.times
 import ktx.tiled.*
+import kotlin.coroutines.coroutineContext
 import kotlin.experimental.or
 
 @AllOf([SpawnComponent::class])
@@ -34,11 +35,10 @@ class EntitySpawnSystem(
 ) : IteratingSystem() , EventListener{
 
     private lateinit var spawnComponent: SpawnComponent
-    private val spawnCache = hashMapOf<Pair<String,Float>,SpawnConfig>()
     private lateinit var physicComponent: PhysicComponent
 
-    private fun getSpawnConfig(spawnComp : SpawnComponent) : SpawnConfig = spawnCache.getOrPut(Pair(spawnComp.name,spawnComp.moveRange)){
-        when(spawnComp.name){
+    private fun getSpawnConfig(spawnComp : SpawnComponent) : SpawnConfig {
+       return when(spawnComp.name){
             GATE ->{
                 SpawnConfig(
                     model = EntityModel.DOOR,
@@ -48,7 +48,7 @@ class EntitySpawnSystem(
             KING ->{
                 SpawnConfig(
                     model = EntityModel.KING,
-                    bodyType = BodyDef.BodyType.DynamicBody,
+                    bodyType = BodyType.DynamicBody,
                     canAttack = true,
                     critChance = 0.5f,
                     imageScaling = Vector2(1.8f,1.8f),
@@ -59,7 +59,7 @@ class EntitySpawnSystem(
                     maskBits = PORTAL_BIT or KING_PIG_BIT or CANNON_BIT or PIG_BIT or GROUND_BIT or BOX_BIT or COLLISION_DETECT_BIT or ENEMY_AXE_BIT or BOMB_BIT,
                     speedScaling = 0.5f,
                     lifeScaling = 1f,
-                    attackDamage = (500..501),
+                    attackDamage = (1..5),
                     maxLife = 5000f,
                     attackFixtureDestroyDelay = 0.4f,
                 )
@@ -225,7 +225,7 @@ class EntitySpawnSystem(
                     canAttack = true,
                     imageScaling = Vector2(1.57f,1f),
                     physicScaling = Vector2(0.55f,0.63f),
-                    physicOffset = Vector2(1.2f,0.25f),
+                    physicOffset = Vector2(1.05f,0.25f),
                     categoryBit = CANNON_BIT,
                     maskBits = GROUND_BIT or ROOF_BIT or BOMB_BIT or BOX_BIT or KING_BIT or KING_PIG_BIT or PIG_BIT or FOOT_BIT or ENEMY_FOOT_BIT or BOMB_BIT or CANNON_BIT,
                     speedScaling = 0f,
@@ -246,7 +246,6 @@ class EntitySpawnSystem(
                 val imageSize = Vector2(width,height)
                 add<ImageComponent>{
                     image = FlipImage(flipX = flipX).apply {
-                        if (spawnConfig.model == EntityModel.KING) isPlayer = true
                         setSize(imageSize.x,imageSize.y)
                         setPosition(location.x,location.y)
                     }
@@ -291,8 +290,6 @@ class EntitySpawnSystem(
                         spawnConfig.physicOffset.set(
                             0.2f,0.25f
                         )
-                        println("flipped")
-                        println(spawnConfig.physicOffset)
                     }
                     offset.set(spawnConfig.physicOffset)
                     //for image physic system
@@ -315,7 +312,6 @@ class EntitySpawnSystem(
                             box(1.15f,1f,position = Vector2(0.55f,0.55f)){
                                 filter.categoryBits = BOX_BIT
                                 filter.maskBits = KING_BIT or GROUND_BIT or FOOT_BIT or ENEMY_FOOT_BIT
-                                density = 100f
                                 userData = BOX_ON_HEAD
                             }
                         }
@@ -329,7 +325,6 @@ class EntitySpawnSystem(
                             }
 
                         }else if(spawnConfig.speedScaling != 0f && spawnConfig.model != EntityModel.BOX && spawnConfig.model != EntityModel.CANNON && spawnConfig.model != EntityModel.BOMB){
-                            println(spawnConfig.model)
                             val x = if (spawnConfig.model == EntityModel.PIG_BOX) 0.6f else if(spawnConfig.model == EntityModel.PIG || spawnConfig.model == EntityModel.KING_PIG) 0.75f else 0.35f
                             val yVector = if(spawnConfig.model == EntityModel.PIG || spawnConfig.model == EntityModel.KING_PIG) Vector2(-0.7f,-0.3f) else Vector2(-0.7f,-0.4f)
                             edge(x,yVector.x,x,yVector.y){
@@ -342,11 +337,7 @@ class EntitySpawnSystem(
                     }
                 }
                 setImageOffset(spawnConfig.model,physicComponent.size)
-                if (spawnConfig.model == EntityModel.CANNON){
-                    println(physicComponent.imageOffset)
-                    println(physicComponent.flipImageOffset)
-                    println(physicComponent.body.position)
-                }
+
                 if (spawnConfig.canAttack){
                     add<AttackComponent>{
                         attackState = AttackState.READY

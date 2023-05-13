@@ -2,20 +2,19 @@ package com.fatih.hoghavoc.ai
 
 import com.badlogic.gdx.graphics.g2d.Animation
 import com.badlogic.gdx.graphics.g2d.Animation.PlayMode
+import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.utils.TimeUtils
+import com.fatih.hoghavoc.actors.FlipImage
 import com.fatih.hoghavoc.component.*
 import com.fatih.hoghavoc.utils.DEFAULT_FRAME_DURATION
 import com.github.quillraven.fleks.ComponentMapper
 import com.github.quillraven.fleks.Entity
 import com.github.quillraven.fleks.Family
 import com.github.quillraven.fleks.World
-import ktx.math.component1
-import ktx.math.component2
-import ktx.math.plus
-import ktx.math.vec2
+import ktx.math.*
 import kotlin.math.abs
 import kotlin.math.pow
 
@@ -28,8 +27,9 @@ class EnemyAiEntity(
     moveComps : ComponentMapper<MoveComponent> = world.mapper(),
     aiComps : ComponentMapper<AiComponent> = world.mapper(),
     imageComps : ComponentMapper<ImageComponent> = world.mapper(),
-    private val attackComps : ComponentMapper<AttackComponent> = world.mapper(),
+    attackComps : ComponentMapper<AttackComponent> = world.mapper(),
     enemyComps : ComponentMapper<EnemyComponent> = world.mapper(),
+    private val dialogComps : ComponentMapper<DialogComponent> = world.mapper(),
     private val lifeComps : ComponentMapper<LifeComponent> = world.mapper()
 ){
 
@@ -88,10 +88,14 @@ class EnemyAiEntity(
     val location : Vector2
         get() = physicComponent.body.position
 
-    val isDead: Boolean
-        get() = lifeComponent.isDead
+    var fireEvent : Boolean = false
+        get() = attackComponent.fireEvent
+        set(value) {
+            attackComponent.fireEvent = value
+            field = value
+        }
 
-    fun startAnimation(animationType: AnimationType, playMode: Animation.PlayMode, frameDuration : Float = DEFAULT_FRAME_DURATION ) {
+    fun startAnimation(animationType: AnimationType, playMode: PlayMode, frameDuration : Float = DEFAULT_FRAME_DURATION ) {
         animationComponent.nextAnimation(animationType,playMode,frameDuration)
     }
 
@@ -137,7 +141,6 @@ class EnemyAiEntity(
                 distanceBetweenItself = kotlin.math.sqrt(xDiff.pow(2)+yDiff.pow(2))
 
                 if (distanceBetweenItself <= 0.0008f){
-
                     if (moveComponent.sin<=0f && time - moveComponent.timeBetweenJumps >= 300L ){
                         moveComponent.sin = 1f
                         moveComponent.timeBetweenJumps = TimeUtils.millis()
@@ -230,6 +233,21 @@ class EnemyAiEntity(
             animComps[cannonEntity!!].nextAnimation(AnimationType.SHOOT,PlayMode.NORMAL,
                 DEFAULT_FRAME_DURATION * 2f)
             }
+    }
+
+    fun changeDialog(dialogType: DialogType) {
+        if ((0f..1f).random() <= dialogType.chance){
+            world.configureEntity(entity){
+                dialogComps.add(it){
+                    dialogImage = FlipImage().apply {
+                        setSize(0.9f,0.8f)
+                        setPosition(location.x - width/1.5f , location.y + height/1.5f)
+                    }
+                    changeDialog(dialogType)
+                }
+            }
+        }
+
     }
 
 

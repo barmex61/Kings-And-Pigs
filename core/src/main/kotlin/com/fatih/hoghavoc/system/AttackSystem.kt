@@ -1,13 +1,11 @@
 package com.fatih.hoghavoc.system
 
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
-import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.Body
 import com.badlogic.gdx.physics.box2d.BodyDef
 import com.badlogic.gdx.physics.box2d.World
 import com.badlogic.gdx.scenes.scene2d.Stage
-import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.badlogic.gdx.utils.Align
 import com.fatih.hoghavoc.actors.FlipImage
 import com.fatih.hoghavoc.utils.*
@@ -17,14 +15,12 @@ import com.github.quillraven.fleks.AllOf
 import com.github.quillraven.fleks.ComponentMapper
 import com.github.quillraven.fleks.Entity
 import com.github.quillraven.fleks.IteratingSystem
-import com.sun.jdi.FloatValue
 import ktx.box2d.body
 import ktx.box2d.box
 import ktx.box2d.chain
 import ktx.box2d.circle
 import ktx.math.plus
 import ktx.math.random
-import ktx.math.times
 import kotlin.experimental.or
 import kotlin.math.max
 import kotlin.math.min
@@ -77,8 +73,9 @@ class AttackSystem(
                 if (!resetState){
                     when(attackType){
                         AttackType.MELEE_ATTACK->{
-                            if (delay == maxDelay){
-                                gameStage.fireEvent(AttackEvent(physicComponent.body.linearVelocity.y > 0.1f))
+                            if (fireEvent){
+                                fireEvent = false
+                                gameStage.fireEvent(AttackEvent(if (physicComponent.body.linearVelocity.y > 0.1) ATTACK_ON_AIR else ATTACK_ON_GROUND))
                             }
                             if (delay > 0f){
                                 meleeAttack(attackOnEnemy,entity)
@@ -86,12 +83,14 @@ class AttackSystem(
                         }
                         AttackType.BOX ->{
                             if (!attackDone && animationComponent.isAttackAnimationDone()){
+                                gameStage.fireEvent(AttackEvent(ATTACK_ON_AIR))
                                 attackDone = true
                                 boxAttack(entity,maxDelay, attackType)
                             }
                         }
                         AttackType.BOMB->{
                             if (!attackDone && animationComponent.isAttackAnimationDone()){
+                                gameStage.fireEvent(AttackEvent( BOMB_SOUND))
                                 attackDone = true
                                 bombAttack(entity,attackType)
                             }
@@ -99,15 +98,17 @@ class AttackSystem(
                         AttackType.CANNON->{
 
                             if (!attackDone && animationComponent.isAttackAnimationDone(0.3f)) {
+                                gameStage.fireEvent(AttackEvent(CANNON_FIRE))
                                 attackDone = true
                                 cannonAttack(entity,attackType)
                             }
                         }
                     }
                 }
-                if (delay <= maxDelay / 1.5f){
+                if (delay <= maxDelay / 1.5f && attackType == AttackType.MELEE_ATTACK){
                     destroyAttackBody(meleeAttackBody)
                     meleeAttackBody = null
+
                 }
                 if (delay <= 0f && entity !in attackFixtureComps){
                     attackDone = false
@@ -233,7 +234,7 @@ class AttackSystem(
                                 physicComponent.body.position.y + 0.7f
                             )
                         }else{
-                            diffX = min(5f,playerBodyPos!!.x - physicComponent.body.position.x)
+                            diffX = max(5f,playerBodyPos!!.x - physicComponent.body.position.x)
                             diffY = playerBodyPos!!.y + 1f - physicComponent.body.position.y
                             position.set(
                                 physicComponent.body.position.x + 2.5f,

@@ -25,6 +25,7 @@ class AttackComponent(
     var meleeAttackBody : Body? = null,
     var attackDone :Boolean = false,
     var resetState : Boolean = false,
+    var fireEvent: Boolean = false
 ){
 
     val isReady : Boolean

@@ -35,8 +35,9 @@ class PhysicSystem(
 
     private lateinit var physicComponent: PhysicComponent
     private lateinit var imageComponent: ImageComponent
-    private var impulseTimer : Long = TimeUtils.millis()
-    private var bombTimer : Long = TimeUtils.millis()
+    private var playerHitTimer : Long = 0L
+    private var bombTimer : Long = 0L
+    private var enemyHitTimer : Long = 0L
     var destroyWorld = false
     var mapPath = "mapObjects/map1.tmx"
     var waitAnimation = false
@@ -65,6 +66,7 @@ class PhysicSystem(
 
     override fun onTickEntity(entity: Entity) {
         physicComponent = physicComps[entity]
+
         physicComponent.previousPosition.set(physicComponent.body.position)
         if (waitAnimation && entity in playerComps && !moveComps[entity].moveIn ){
             gameStage.fireEvent(CurrentMapChangeEvent(mapPath))
@@ -106,7 +108,7 @@ class PhysicSystem(
                     kingEntity = fixtureA.userData as Entity
                     boxEntity = fixtureB.body.userData as Entity
                     gameStage.run {
-                        fireEvent(EnemyHitPlayerEvent(kingEntity,boxEntity))
+                        fireEvent(EnemyHitPlayerEvent(kingEntity,boxEntity,null))
                         boxEntity.let {
                             attackFixtureComps.getOrNull(boxEntity)?.hitPlayer=true
                         }
@@ -115,7 +117,7 @@ class PhysicSystem(
                     kingEntity = fixtureB.body.userData as Entity
                     boxEntity = fixtureA.body.userData as Entity
                     gameStage.run {
-                        fireEvent(EnemyHitPlayerEvent(kingEntity,boxEntity))
+                        fireEvent(EnemyHitPlayerEvent(kingEntity,boxEntity,null))
                         boxEntity.let {
                             attackFixtureComps.getOrNull(boxEntity)?.hitPlayer=true
                         }
@@ -148,12 +150,13 @@ class PhysicSystem(
                 if (fixtureA.filterData.categoryBits == KING_BIT  && fixtureB.userData == BOMB_EXPLODE_FIXTURE && TimeUtils.millis() - bombTimer > 600L){
                     bombTimer = TimeUtils.millis()
                     kingEntity = fixtureA.userData as Entity
-                    gameStage.fireEvent(EnemyHitPlayerEvent(kingEntity,fixtureB.body.userData as Entity))
+                    gameStage.fireEvent(EnemyHitPlayerEvent(kingEntity,fixtureB.body.userData as Entity,CANNON_EXPLOSION))
                 }
                 if (fixtureB.filterData.categoryBits == KING_BIT && fixtureA.userData == BOMB_EXPLODE_FIXTURE && TimeUtils.millis() - bombTimer > 600L){
                     bombTimer = TimeUtils.millis()
                     kingEntity = fixtureB.userData as Entity
-                    gameStage.fireEvent(EnemyHitPlayerEvent(kingEntity,fixtureA.body.userData as Entity))
+                    gameStage.fireEvent(EnemyHitPlayerEvent(kingEntity,fixtureA.body.userData as Entity,
+                        CANNON_EXPLOSION))
                 }
 
             }
@@ -203,16 +206,14 @@ class PhysicSystem(
                     enemyEntity = fixtureA.userData as Entity
                     axeBodyPosition = fixtureB.body.position
                 }
-                if (TimeUtils.millis() - impulseTimer >= TIME_BETWEEN_ATTACKS) {
+                if (TimeUtils.millis() - playerHitTimer >= TIME_BETWEEN_ATTACKS) {
                     physicComps[enemyEntity].run {
-                        impulse.set(
-                            (body.position.x - axeBodyPosition.x) * 3.5f,
-                            body.position.y - axeBodyPosition.y * 3f
-                        )
+                        body.applyLinearImpulse(Vector2((body.position.x - axeBodyPosition.x) * 15f,
+                            body.position.y - axeBodyPosition.y * 15f),body.worldCenter,true)
                     }
                     gameStage.fireEvent(PlayerHitEnemyEvent(kingEntity, enemyEntity))
                 }
-                impulseTimer = TimeUtils.millis()
+                playerHitTimer = TimeUtils.millis()
             }
             COLLISION_DETECT_BIT or KING_BIT ->{
                 val kingEntity = getEntity(fixtureA,fixtureB, KING_BIT)
@@ -222,16 +223,11 @@ class PhysicSystem(
             }
 
             ENEMY_AXE_BIT or KING_BIT -> {
-                val enemyEntity : Entity
-                val kingEntity : Entity
-                 if (fixtureA.filterData.categoryBits == KING_BIT){
-                    enemyEntity = fixtureB.body.userData as Entity
-                    kingEntity = fixtureA.body.userData as Entity
-                }else{
-                    enemyEntity = fixtureA.body.userData as Entity
-                    kingEntity = fixtureB.body.userData as Entity
-                }
-                gameStage.fireEvent(EnemyHitPlayerEvent(kingEntity,enemyEntity))
+                val enemyEntity : Entity = getEntity(fixtureA,fixtureB, ENEMY_AXE_BIT)
+                val kingEntity : Entity = getEntity(fixtureA,fixtureB, KING_BIT)
+                if (TimeUtils.millis() - enemyHitTimer >= TIME_BETWEEN_ATTACKS)
+                    gameStage.fireEvent(EnemyHitPlayerEvent(kingEntity,enemyEntity,null))
+                enemyHitTimer = TimeUtils.millis()
             }
 
             KING_BIT or PORTAL_BIT ->{
@@ -292,11 +288,7 @@ class PhysicSystem(
                 moveComps[getEntity(fixtureA,fixtureB, ENEMY_FOOT_BIT)].canJump = false
             }
             FOOT_BIT or BOMB_BIT, FOOT_BIT or BOX_BIT, FOOT_BIT or KING_BIT, FOOT_BIT or PIG_BIT ,FOOT_BIT or KING_PIG_BIT ->{
-                if (fixtureA.filterData.categoryBits == FOOT_BIT){
-                    moveComps[fixtureA.userData as Entity].canJump = false
-                }else{
-                    moveComps[fixtureB.userData as Entity].canJump = false
-                }
+                moveComps[getEntity(fixtureA,fixtureB, FOOT_BIT)].canJump = false
             }
 
         }

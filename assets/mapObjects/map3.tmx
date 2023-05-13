@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.9" tiledversion="1.9.2" orientation="orthogonal" renderorder="right-down" width="12" height="24" tilewidth="32" tileheight="32" infinite="0" nextlayerid="9" nextobjectid="68">
+ <properties>
+  <property name="music" value="audio/mapmusic.mp3"/>
+ </properties>
  <tileset firstgid="1" source="tileset1.tsx"/>
  <tileset firstgid="513" source="entities.tsx"/>
  <layer id="3" name="BackgroundLayer" width="12" height="24">
@@ -182,17 +185,21 @@
     <property name="moveRange" type="float" value="3"/>
    </properties>
   </object>
-  <object id="51" name="King_pig" gid="517" x="178" y="734.5" width="38" height="28"/>
-  <object id="55" name="Box" gid="525" x="149" y="734.5" width="26" height="20"/>
-  <object id="57" name="Box" gid="2147484168" x="152.091" y="717.636" width="22" height="16"/>
-  <object id="58" name="Pig" gid="519" x="175.5" y="320" width="34" height="28">
+  <object id="51" name="King_pig" gid="517" x="178" y="734.5" width="38" height="28">
    <properties>
-    <property name="moveRange" type="float" value="2.5"/>
+    <property name="moveRange" type="float" value="5"/>
    </properties>
   </object>
-  <object id="59" name="Pig" gid="519" x="128" y="320" width="34" height="28">
+  <object id="55" name="Box" gid="525" x="149" y="734.5" width="26" height="20"/>
+  <object id="57" name="Box" gid="2147484168" x="152.091" y="717.636" width="22" height="16"/>
+  <object id="58" name="Pig" gid="519" x="157" y="318" width="34" height="28">
    <properties>
-    <property name="moveRange" type="float" value="2.5"/>
+    <property name="moveRange" type="float" value="5"/>
+   </properties>
+  </object>
+  <object id="59" name="Pig" gid="519" x="106" y="318.5" width="34" height="28">
+   <properties>
+    <property name="moveRange" type="float" value="5"/>
    </properties>
   </object>
   <object id="61" name="Pig_bomb" gid="524" x="96" y="64" width="26" height="26">
@@ -202,7 +209,7 @@
   </object>
   <object id="62" name="Cannon" gid="526" x="208.182" y="98.9091" width="44" height="28"/>
   <object id="63" name="Pig_fire" gid="527" x="246.818" y="96.0909" width="26" height="18"/>
-  <object id="64" name="Pig_box" gid="521" x="309" y="190" width="26" height="30">
+  <object id="64" name="Pig_box" gid="521" x="266" y="192.5" width="26" height="30">
    <properties>
     <property name="moveRange" type="float" value="5"/>
    </properties>
