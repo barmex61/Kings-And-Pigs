@@ -13,5 +13,5 @@ data class MoveComponent(
     var moveRange : Float = 0f,
     var timeBetweenJumps : Long = 0L,
     var moveIn : Boolean = false,
-    var fireEvent: Boolean = false
+    var fireEvent : Boolean = false
 )

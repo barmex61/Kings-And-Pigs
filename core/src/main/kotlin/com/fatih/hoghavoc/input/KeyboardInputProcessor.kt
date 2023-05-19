@@ -31,7 +31,6 @@ class KeyboardInputProcessor(
 
     init {
         inputMultiplexer.addProcessor(this)
-        Gdx.input.inputProcessor = inputMultiplexer
     }
 
     private fun Int.isGameKey() = this == Input.Keys.UP || this == Input.Keys.RIGHT || this == Input.Keys.LEFT || this == Input.Keys.SHIFT_LEFT || this == Input.Keys.SPACE

@@ -32,8 +32,8 @@ class MoveSystem(
             val (velX, velY) = body.linearVelocity
             if (!(!impulse.isZero && entity in enemyComps) ){
                 moveComponent.run {
-                    if (fireEvent){
-                        gameStage.fireEvent(JumpEvent())
+                    if (canJump && fireEvent && sin == 1f){
+                        gameStage.fireEvent(JumpEvent)
                         fireEvent = false
                     }
                     if ((cos == 0f && sin == 0f) || root ) {

@@ -8,7 +8,7 @@ import com.fatih.hoghavoc.utils.DEFAULT_FRAME_DURATION
 
 enum class AnimationType{
     DEAD,DOOR_IN,DOOR_OUT,FALL,GROUND,HIT,IDLE,RUN, ATTACK,BOX_FALL,BOX_GROUND,PICKING,JUMP_READY,LOOKING_OUT,
-    PREPARE,READY,USE, JUMP,RUNNING,THROW,THROWING,ON,SHOOT,OPENING,CLOSING
+    PREPARE,READY,USE, JUMP,RUNNING,THROW,THROWING,ON,SHOOT,OPENING,CLOSING,EXPLODE
 }
 
 enum class TextureType{
@@ -26,7 +26,7 @@ class AnimationComponent(
     lateinit var animType : AnimationType
     var textureType: TextureType? = null
     lateinit var entityModel: EntityModel
-    lateinit var animation : Animation<TextureRegionDrawable>
+    var animation : Animation<TextureRegionDrawable>? = null
     lateinit var texture : TextureRegionDrawable
     var nextAnimation : String = ""
     var nextTexture : String = ""
@@ -34,16 +34,16 @@ class AnimationComponent(
 
 
     fun isAnimationDone(animType : AnimationType,playMode: PlayMode = PlayMode.NORMAL) : Boolean {
-        return ( animation.isAnimationFinished(stateTime))
+        return ( animation?.isAnimationFinished(stateTime)?:false)
     }
 
     fun isAnimationDone(animType : AnimationType) : Boolean {
 
-        return ( this.animType == animType && animation.isAnimationFinished(stateTime))
+        return ( this.animType == animType && animation?.isAnimationFinished(stateTime) ?: false)
     }
 
     fun isAttackAnimationDone(plusTime : Float = 0.2f) : Boolean {
-        return animation.isAnimationFinished(stateTime + plusTime)
+        return animation?.isAnimationFinished(stateTime + plusTime) ?: false
     }
 
 
@@ -55,7 +55,15 @@ class AnimationComponent(
                 if (entityModel == EntityModel.PIG_FIRE) {
                     this.playMode = PlayMode.NORMAL
                     AnimationType.PREPARE
-                } else animationType
+                }else if(entityModel == EntityModel.PIG_BOX_INSIDE){
+                    setOf(AnimationType.LOOKING_OUT,AnimationType.JUMP_READY).random()
+                }
+                else animationType
+            }
+            AnimationType.RUN ->{
+                if (entityModel == EntityModel.PIG_BOX_INSIDE){
+                    AnimationType.JUMP
+                }else animationType
             }
             AnimationType.DEAD ->{
                 when{
@@ -73,6 +81,9 @@ class AnimationComponent(
                     }
                     EntityModel.PIG_BOX->{
                         AnimationType.THROWING
+                    }
+                    EntityModel.PIG_BOX_INSIDE->{
+                        AnimationType.JUMP
                     }
                     else-> animationType
                 }

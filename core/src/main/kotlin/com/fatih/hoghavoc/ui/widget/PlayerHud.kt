@@ -3,12 +3,14 @@ package com.fatih.hoghavoc.ui.widget
 import com.badlogic.gdx.math.Interpolation
 import com.badlogic.gdx.scenes.scene2d.Action
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
+import com.badlogic.gdx.scenes.scene2d.actions.Actions.fadeIn
 import com.badlogic.gdx.scenes.scene2d.actions.Actions.fadeOut
 import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup
 import com.fatih.hoghavoc.ui.Drawables
 import com.fatih.hoghavoc.ui.get
+import ktx.actors.alpha
 import ktx.scene2d.*
 
 class PlayerHud(
@@ -55,26 +57,33 @@ class PlayerHud(
 
     }
 
-    fun reduceLife(duration:Float = 0.75f){
+    fun setExtraLife(extraLife: Int,duration:Float = 1f){
         if (imageList.isEmpty() ) return
-        if (imageList.last().hasActions()){
-            imageList.last().clearActions()
-            val actor = imageList.removeLast()
-            removeActor(actor)
-            return
-        }
-        imageList.last().addAction(
-            Actions.sequence(
-                fadeOut(duration, Interpolation.pow3OutInverse),
-                object : Action() {
-                    override fun act(delta: Float): Boolean {
-                        val image = imageList.removeLast()
-                        removeActor(image)
-                        return true
-                    }
-                }
-            )
-        )
+        if (imageList.last().hasActions()) imageList.last().clearActions()
+        if (imageList.size > extraLife){
+                imageList.last().addAction(
+                    Actions.sequence(
+                        fadeOut(duration, Interpolation.pow3OutInverse),
+                        object : Action() {
+                            override fun act(delta: Float): Boolean {
+                                val image = imageList.removeLast()
+                                removeActor(image)
+                                return true
+                            }
+                        }
+                    )
+                )
+
+            }else if (imageList.size < extraLife){
+               imageList.add(Image(skin[Drawables.SMALL_HEARTH]).apply {
+                    setPosition(lifeBar.x + (imageList.size + 1) * 11f , lifeBar.y + 10f)
+                }.also {
+                   addActor(it)
+               })
+                imageList.last().addAction( fadeIn(duration, Interpolation.pow3OutInverse),)
+                return
+            }
+
     }
 
     fun reduceHealthBar(percentage : Float){

@@ -29,6 +29,7 @@ sealed class PlayerState : EntityState {
         override fun update(entity: PlayerAiEntity) {
             if (entity.animationComponent.isAnimationDone(AnimationType.DOOR_IN)){
                 entity.moveIn = false
+                entity.changeState(IDLE)
             }
         }
     }
@@ -74,7 +75,6 @@ sealed class PlayerState : EntityState {
     object JUMP : PlayerState(){
         override fun enter(entity: PlayerAiEntity) {
             entity.setTexture(TextureType.JUMP)
-            entity.fireJumpEvent = true
         }
 
         override fun update(entity: PlayerAiEntity) {
@@ -142,11 +142,15 @@ sealed class PlayerState : EntityState {
     object DEAD : PlayerState(){
         override fun enter(entity: PlayerAiEntity) {
             entity.root(true)
+            entity.fireExtraLifeEvent = true
+            entity.animationComponent.nextAnimation(AnimationType.DEAD, frameDuration = DEFAULT_FRAME_DURATION *3f)
         }
 
         override fun update(entity: PlayerAiEntity) {
             when{
-                entity.wantsToResurrect -> entity.changeState(RESURRECT)
+                entity.animationComponent.isAnimationDone(AnimationType.DEAD) && entity.wantsToResurrect -> {
+                    entity.changeState(RESURRECT)
+                }
             }
         }
     }
@@ -154,7 +158,7 @@ sealed class PlayerState : EntityState {
 
     object RESURRECT: PlayerState(){
         override fun enter(entity: PlayerAiEntity) {
-            entity.startAnimation(AnimationType.DEAD,Animation.PlayMode.REVERSED, DEFAULT_FRAME_DURATION * 2f)
+            entity.startAnimation(AnimationType.DEAD,Animation.PlayMode.REVERSED, DEFAULT_FRAME_DURATION)
             entity.root(true)
         }
 
@@ -162,6 +166,7 @@ sealed class PlayerState : EntityState {
             if (entity.animationComponent.isAnimationDone(AnimationType.DEAD,Animation.PlayMode.REVERSED)){
                 entity.root(false)
                 entity.changeState(IDLE)
+                entity.setMaxLife()
             }
         }
     }

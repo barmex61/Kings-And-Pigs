@@ -6,6 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.actions.Actions.fadeOut
 import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable
 import com.fatih.hoghavoc.ui.Drawables
 import com.fatih.hoghavoc.ui.get
 import ktx.actors.alpha
@@ -41,12 +42,12 @@ class EnemyHud(
     fun reduceHealthBar(percentage: Float) {
         small_hp_bar.clearActions()
         small_hp_bar.addAction(
-            Actions.scaleTo(percentage.coerceIn(0f,1f),1f,0.7f)
+            Actions.scaleTo(percentage.coerceIn(0f,1f),1f,1f)
         )
         if (this.alpha != 0f) this.clearActions()
         this.addAction(Actions.sequence(
-            Actions.fadeIn(1f, Interpolation.fade),
-            Actions.delay(10f, fadeOut(3f, Interpolation.fade))
+            Actions.fadeIn(0.7f, Interpolation.fade),
+            Actions.delay(2f, fadeOut(1f, Interpolation.fade))
         ))
     }
     fun reduceManaBar(percentage: Float) {
@@ -57,8 +58,8 @@ class EnemyHud(
         ))
     }
 
-    fun setImage(image: Image) {
-        enemyPortre.drawable = image.drawable
+    fun setImage(drawable:Drawable) {
+        enemyPortre.drawable = drawable
     }
 
     fun showEnemyInfo() {

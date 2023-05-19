@@ -5,6 +5,9 @@ import com.badlogic.gdx.physics.box2d.World
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.utils.TimeUtils
 import com.fatih.hoghavoc.component.*
+import com.fatih.hoghavoc.events.FinalScoreEvent
+import com.fatih.hoghavoc.events.ScoreEvent
+import com.fatih.hoghavoc.utils.fireEvent
 import com.github.quillraven.fleks.AllOf
 import com.github.quillraven.fleks.ComponentMapper
 import com.github.quillraven.fleks.Entity
@@ -16,8 +19,11 @@ class DeadSystem(
     private val animComps : ComponentMapper<AnimationComponent>,
     private val physicComps : ComponentMapper<PhysicComponent>,
     private val attackComps : ComponentMapper<AttackComponent>,
+    private val scoreComps : ComponentMapper<ScoreComponent>,
     private val attackFixtureComps : ComponentMapper<AttackFixtureComponent>,
-    private val physicWorld : World
+    private val physicWorld : World,
+    private val gameStage : Stage,
+    private val playerComps : ComponentMapper<PlayerComponent>
 ) : IteratingSystem(){
 
     private lateinit var deadComponent: DeadComponent
@@ -27,7 +33,14 @@ class DeadSystem(
         deadComponent = deadComps[entity]
         animationComponent = animComps[entity]
         deadComponent.run {
-            if (animationComponent.isAnimationDone(AnimationType.DEAD,Animation.PlayMode.NORMAL)){
+
+            if (destroyInstantly || animationComponent.isAnimationDone(AnimationType.DEAD,Animation.PlayMode.NORMAL)){
+                if (entity in playerComps){
+                    gameStage.fireEvent(FinalScoreEvent())
+                }
+                scoreComps.getOrNull(entity)?.run{
+                    gameStage.fireEvent(ScoreEvent(score))
+                }
                 attackFixtureComps.getOrNull(entity)?.run {
                     attackBody?.run {
                         physicWorld.destroyBody(this)
@@ -44,9 +57,8 @@ class DeadSystem(
                         physicWorld.destroyBody(it)
                     }
                 }
-                physicComps[entity].body?.let {
-                    physicWorld.destroyBody(physicComps[entity].body)
-                }
+
+                physicWorld.destroyBody(physicComps[entity].body)
                 world.remove(entity)
             }
         }

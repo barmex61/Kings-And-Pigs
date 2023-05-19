@@ -6,7 +6,7 @@ import ktx.math.vec2
 
 
 enum class EntityModel(var identify : String = "") {
-    KING,KING_PIG,PIG,BOMB,PIG_BOX,PIG_FIRE,PIG_BOMB,CANNON,BOX,DOOR;
+    KING,KING_PIG,PIG,BOMB,PIG_BOX,PIG_FIRE,PIG_BOMB,CANNON,BOX,DOOR,DIAMOND,HEARTH,PIG_BOX_INSIDE;
 }
 
 data class SpawnConfig(
@@ -19,7 +19,7 @@ data class SpawnConfig(
     val attackDelay : Float = 0.5f,
     val attackScaling : Float = 1f,
     val extraAttackRange : Float = 0f,
-    val lifeScaling : Float = 1f,
+    val lifeScaling : Float = 0f,
     val maxLife : Float = 50f,
     val aiTreePath : String = "",
     val regeneration : Float = 2f,
@@ -35,8 +35,8 @@ data class SpawnConfig(
     val doorIn : Boolean = false,
     val attackDamage : IntRange = 0..1,
     val critChance : Float = 0f,
-
-
+    val density : Float = 50f,
+    val score : Int = 0
 )
 
 data class SpawnComponent (

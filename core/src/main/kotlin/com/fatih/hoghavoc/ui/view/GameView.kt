@@ -6,13 +6,14 @@ import com.badlogic.gdx.scenes.scene2d.InputListener
 import com.badlogic.gdx.scenes.scene2d.actions.Actions.*
 import com.badlogic.gdx.scenes.scene2d.actions.DelayAction
 import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction
-import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.ui.Touchpad
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable
 import com.badlogic.gdx.utils.Align
 import com.fatih.hoghavoc.ui.Labels
+import com.fatih.hoghavoc.ui.TextButtons
 import com.fatih.hoghavoc.ui.model.GameModel
 import com.fatih.hoghavoc.ui.widget.*
 import ktx.actors.alpha
@@ -27,6 +28,7 @@ class GameView(
     private val playerHud : PlayerHud
     private val enemyHud : EnemyHud
     private val textTable : Table
+    private val scoreLabel : Label
     var touchPad : Touchpad? = null
     var attackHud : AttackHud? = null
     val changeAlphaLambda : (String,Boolean) -> Unit = {actor,setAlpha->
@@ -52,18 +54,18 @@ class GameView(
 
         top().left()
         playerHud = playerHud{
-            it.top().left().padTop(5f).padLeft(5f).width(110f).expandX()
+            it.top().left().padTop(5f).padLeft(5f).width(80f).expandX()
         }
         enemyHud = enemyHud{
-            it.padTop(25f).width(150f).expandX()
+            it.padTop(25f).width(80f).expandX()
             this.alpha = 0f
         }
-        label("",style = Labels.NOTHING.skinKey){
-            it.expandX()
+        scoreLabel = label("[WHITE]SCORE : 0",style = Labels.SCORE.skinKey){
+            it.left().top().padLeft(10f).padTop(5f).expandX()
         }
         row()
         textTable = table {
-            label("Thus is a Thust", style = Labels.FRAME.skinKey){ labelCell->
+            label("Thus is a Thust", style = TextButtons.TEXT.skinKey){ labelCell->
                 setAlignment(Align.topLeft)
                 wrap = true
                 labelCell.expand().fill()
@@ -92,8 +94,14 @@ class GameView(
         model.enemyLife.observe {percentage->
             reduceEnemyHealth(percentage)
         }
-        model.enemyImage.observe {enemyImage->
-            setEnemyImage(enemyImage)
+        model.enemyImage.observe {enemyDrawable->
+            setEnemyImage(enemyDrawable)
+        }
+        model.score.observe{score->
+            setScore(score)
+        }
+        model.playerExtraLife.observe { extraLife->
+            setExtraLife(extraLife)
         }
 
     }
@@ -103,13 +111,18 @@ class GameView(
         attackHud?.addListener(inputListener)
     }
 
-    fun reducePlayerLife() = playerHud.reduceLife()
+    private fun setScore(score:Int){
+        scoreLabel.setText("SCORE : $score")
+    }
+
+
+    private fun setExtraLife(extraLife : Int) = playerHud.setExtraLife(extraLife)
     private fun reducePlayerHealth(percentage:Float) = playerHud.reduceHealthBar(percentage)
     private fun reduceEnemyHealth(percentage: Float) = enemyHud.reduceHealthBar(percentage)
     fun reduceEnemyMana(percentage: Float) = enemyHud.reduceManaBar(percentage)
 
-    private fun setEnemyImage(image: Image){
-        enemyHud.setImage(image)
+    private fun setEnemyImage(drawable:Drawable){
+        enemyHud.setImage(drawable)
     }
 
     private fun showActor(actor: Actor, text:String = ""){
@@ -117,8 +130,8 @@ class GameView(
         if (actor.alpha == 0f){
             actor.clearActions()
             actor.addAction(sequence(
-                fadeIn(2f, Interpolation.fade),
-                delay(2f,fadeOut(0.5f, Interpolation.fade))
+                fadeIn(1f, Interpolation.fade),
+                delay(1f,fadeOut(0.5f, Interpolation.fade))
             ))
         }else{
             actor.resetFadeOutDelay()

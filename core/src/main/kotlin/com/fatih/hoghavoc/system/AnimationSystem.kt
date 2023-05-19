@@ -27,6 +27,7 @@ class AnimationSystem(
 
     private fun getAnimation(nextAnimation: String,frameDuration : Float,entityModel: EntityModel? = null,isDoor : Boolean = false) : Animation<TextureRegionDrawable> = animCache.getOrPut(nextAnimation){
         val frames = textureAtlas.findRegions(nextAnimation)
+        println(nextAnimation)
         entityModel?.let {
             frames.add(frames.first())
         }
@@ -49,7 +50,7 @@ class AnimationSystem(
 
                 if (nextAnimation.isNotEmpty()){
                     animation = getAnimation(nextAnimation,frameDuration,if (entityModel == EntityModel.CANNON) entityModel else null,isDoor)
-                    animation.playMode = playMode
+                    animation!!.playMode = playMode
                     nextAnimation = EMPTY_LINE
                 }
 
@@ -59,7 +60,7 @@ class AnimationSystem(
                     }
                     isScaled = true
                 }
-                imageComponent.image.drawable = animation.getKeyFrame(stateTime)
+                imageComponent.image.drawable = animation!!.getKeyFrame(stateTime)
                 stateTime += deltaTime
 
             }else{

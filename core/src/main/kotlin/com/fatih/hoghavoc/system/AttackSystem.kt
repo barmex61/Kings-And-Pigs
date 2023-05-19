@@ -126,8 +126,6 @@ class AttackSystem(
 
     private fun destroyAttackBody(body: Body?){
         body?.fixtureList?.firstOrNull()?.let {
-            it.filterData.categoryBits = NOTHING_BIT
-            body.destroyFixture(it)
             physicWorld.destroyBody(body)
         }
     }
@@ -278,13 +276,11 @@ class AttackSystem(
                     isSensor = true
                     userData = entity
                     filter.categoryBits = if (attackOnEnemy) AXE_BIT else ENEMY_AXE_BIT
-                    filter.maskBits = if (attackOnEnemy) PIG_BIT or KING_PIG_BIT else KING_BIT
+                    filter.maskBits = if (attackOnEnemy) PIG_BIT or KING_PIG_BIT or BOX_BIT or GROUND_BIT else KING_BIT
                 }
             }
         }else if (attackComponent.attackOnEnemy){
             attackComponent.meleeAttackBody!!.fixtureList.firstOrNull()?.run {
-                filterData!!.categoryBits = NOTHING_BIT
-                attackComponent.meleeAttackBody!!.destroyFixture(this)
                 physicWorld.destroyBody(attackComponent.meleeAttackBody!!)
                 attackComponent.meleeAttackBody = null
             }

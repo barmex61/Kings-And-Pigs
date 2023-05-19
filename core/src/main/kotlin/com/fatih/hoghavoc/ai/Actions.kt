@@ -9,11 +9,7 @@ import com.badlogic.gdx.graphics.g2d.Animation
 import com.fatih.hoghavoc.component.AnimationType
 import com.fatih.hoghavoc.component.DialogType
 import com.fatih.hoghavoc.component.TextureType
-import com.fatih.hoghavoc.events.AttackEvent
-import com.fatih.hoghavoc.events.EnemyAttackEvent
-import com.fatih.hoghavoc.events.EnemyDamageEvent
 import com.fatih.hoghavoc.utils.DEFAULT_FRAME_DURATION
-import com.fatih.hoghavoc.utils.fireEvent
 import ktx.math.random
 import ktx.math.vec2
 
@@ -120,7 +116,6 @@ class MeleeAttackTask : Action(){
         if (status != Status.RUNNING){
             entity.changeDialog(DialogType.ATTACK)
             entity.faceToKing()
-            entity.gameStage.fireEvent(EnemyAttackEvent(entity.entity))
             entity.fireEvent = true
             entity.startAnimation(AnimationType.ATTACK, Animation.PlayMode.NORMAL, DEFAULT_FRAME_DURATION )
             entity.stopMovement()
@@ -149,7 +144,6 @@ class RangeAttackTask : Action(){
         if (status != Status.RUNNING){
             entity.changeDialog(DialogType.ATTACK)
             entity.faceToKing()
-            entity.gameStage.fireEvent(EnemyAttackEvent(entity.entity))
             entity.startAnimation(AnimationType.ATTACK, Animation.PlayMode.NORMAL, DEFAULT_FRAME_DURATION )
             entity.stopMovement()
             entity.startAttack()
@@ -217,7 +211,7 @@ class HitTask(
 
         if (status != Status.RUNNING){
             entity.changeDialog(if((0f..1f).random() <= 0.5f) DialogType.LOSER else DialogType.WTF )
-            entity.startAnimation(AnimationType.HIT,Animation.PlayMode.NORMAL, DEFAULT_FRAME_DURATION * 1.5f)
+            entity.startAnimation(AnimationType.HIT,Animation.PlayMode.NORMAL, DEFAULT_FRAME_DURATION *2f)
             deltaTime = duration?.nextFloat()?:1.5f
             entity.stopMovement()
             return Status.RUNNING
@@ -250,6 +244,9 @@ class CycleTask: Action(){
         }
         if (entity.isAnimationFinished(AnimationType.USE)){
             entity.startAnimation(AnimationType.PREPARE,Animation.PlayMode.NORMAL, DEFAULT_FRAME_DURATION*2f)
+        }
+        if (entity.isGetHit()){
+            return Status.FAILED
         }
 
         return Status.RUNNING

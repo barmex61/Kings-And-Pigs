@@ -9,12 +9,19 @@ class LifeComponent(
     var takeDamage : Int = 0,
     var delay : Float = DEAD_DELAY,
     var getHit : Boolean = false,
-    var critHit : Boolean = false
+    var critHit : Boolean = false,
+    var extraLife : Int = 0,
+    var fireExtraLifeEvent : Boolean = false,
+    var fireHealEvent : Boolean = false,
+    var resurrectTimer : Float = 7f
 ) {
 
+    val deadState : Boolean
+        get() = life <= 0
+
     val isDead : Boolean
-        get() = life <= 0f
+        get() = extraLife == 0 && life <= 0
 
     val wantsToResurrect : Boolean
-        get() = life > 0f
+        get() = extraLife > 0
 }

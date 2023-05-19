@@ -61,11 +61,17 @@ class AttackFixtureSystem(
                     AttackType.BOMB ->{
                         attackImage!!.run {
                             drawable = animation!!.getKeyFrame(stateTimer)
+                            explodeBody?.let {
+                               setPosition(it.position.x - imageSize.x + 0.1f ,it.position.y - imageSize.y - 0.3f )
+                            }
                         }
                     }
                     AttackType.CANNON->{
                         attackImage!!.run {
                             drawable = animation!!.getKeyFrame(stateTimer)
+                            explodeBody?.let {
+                                setPosition(it.position.x - imageSize.x + 0.1f ,it.position.y - imageSize.y - 0.7f )
+                            }
                         }
                     }
                     AttackType.BOX->{
@@ -186,7 +192,9 @@ class AttackFixtureSystem(
                     configureEntity(entity){
                         attackFixtureComps.remove(entity)
                     }
-
+                    if (destroyEntity) {
+                        world.remove(entity)
+                    }
                 }
             }
         }

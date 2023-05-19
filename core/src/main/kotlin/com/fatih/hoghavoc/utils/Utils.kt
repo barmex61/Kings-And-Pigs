@@ -11,6 +11,7 @@ fun Stage.fireEvent(event: Event) = this.root.fire(event)
 const val BOX = "Box"
 const val KING = "King"
 const val KING_PIG = "King_pig"
+const val PIG_BOX_INSIDE = "Pig_box_inside"
 const val PIG = "Pig"
 const val BOMB = "Bomb"
 const val EMPTY_LINE = ""
@@ -40,6 +41,7 @@ const val MELEE_ATTACK_DELAY = 0.6f
 const val BOMB_ATTACK_DELAY = 2f
 const val CANNON_ATTACK_DELAY =  5f
 const val DIALOG_DURATION = 2f
+const val DEFAULT_CONTACT_DELAY = 1f
 
 const val KING_BIT : Short = 16
 const val KING_PIG_BIT : Short = 1
@@ -49,7 +51,7 @@ const val GROUND_BIT : Short = 8
 const val FOOT_BIT : Short = 32
 const val ROOF_BIT : Short = 64
 const val AXE_BIT : Short = 128
-const val NOTHING_BIT : Short = 256
+const val ITEM_BIT : Short = 256
 const val COLLISION_DETECT_BIT : Short = 512
 const val ENEMY_FOOT_BIT :Short = 1024
 const val ENEMY_AXE_BIT : Short = 2048
@@ -58,8 +60,8 @@ const val CANNON_BIT : Short = 8192
 const val PORTAL_BIT : Short = 16384
 
 
-val KING_FOOT_ENABLE_COLLISION : Short = KING_PIG_BIT or CANNON_BIT or PIG_BIT or ROOF_BIT or GROUND_BIT or BOX_BIT or COLLISION_DETECT_BIT or ENEMY_AXE_BIT or BOMB_BIT or PORTAL_BIT
-val KING_FOOT_DISABLE_COLLISION : Short = KING_PIG_BIT or PIG_BIT or GROUND_BIT or BOX_BIT or COLLISION_DETECT_BIT or ENEMY_AXE_BIT or BOMB_BIT or CANNON_BIT or PORTAL_BIT
+val KING_FOOT_ENABLE_COLLISION : Short = KING_PIG_BIT or CANNON_BIT or PIG_BIT or ROOF_BIT or GROUND_BIT or BOX_BIT or COLLISION_DETECT_BIT or ENEMY_AXE_BIT or BOMB_BIT or PORTAL_BIT or ITEM_BIT
+val KING_FOOT_DISABLE_COLLISION : Short = KING_PIG_BIT or PIG_BIT or GROUND_BIT or BOX_BIT or COLLISION_DETECT_BIT or ENEMY_AXE_BIT or BOMB_BIT or CANNON_BIT or PORTAL_BIT or ITEM_BIT
 val PIG_FOOT_ENABLE_COLLISION : Short = KING_BIT  or BOX_BIT or AXE_BIT or GROUND_BIT or FOOT_BIT or KING_PIG_BIT or BOMB_BIT or CANNON_BIT or PIG_BIT or ROOF_BIT
 val PIG_FOOT_DISABLE_COLLISION : Short = KING_BIT  or BOX_BIT or AXE_BIT or GROUND_BIT or FOOT_BIT or KING_PIG_BIT or BOMB_BIT or CANNON_BIT or PIG_BIT
 

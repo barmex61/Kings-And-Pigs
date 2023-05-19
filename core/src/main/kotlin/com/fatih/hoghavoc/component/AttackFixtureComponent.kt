@@ -6,9 +6,6 @@ import com.badlogic.gdx.physics.box2d.Body
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.fatih.hoghavoc.actors.FlipImage
-import com.fatih.hoghavoc.events.AttackEvent
-import com.fatih.hoghavoc.utils.NOTHING_BIT
-import com.fatih.hoghavoc.utils.fireEvent
 import com.github.quillraven.fleks.ComponentListener
 import com.github.quillraven.fleks.Entity
 import ktx.math.vec2
@@ -28,6 +25,7 @@ class AttackFixtureComponent {
     var boxPiecesBodyCreated : Boolean = false
     var explodeBody : Body? = null
     var hitPlayer : Boolean = false
+    var destroyEntity : Boolean = false
 
     companion object{
         class AttackFixtureComponentListener(

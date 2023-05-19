@@ -2,6 +2,7 @@ package com.fatih.hoghavoc.screen
 
 import com.badlogic.gdx.Application.ApplicationType
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.ai.GdxAI
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
@@ -15,10 +16,7 @@ import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.badlogic.gdx.scenes.scene2d.actions.Actions.fadeIn
 import com.badlogic.gdx.utils.Array
 import com.fatih.hoghavoc.component.*
-import com.fatih.hoghavoc.events.CurrentMapChangeEvent
-import com.fatih.hoghavoc.events.DestroyWorld
-import com.fatih.hoghavoc.events.MapChangeEvent
-import com.fatih.hoghavoc.events.StartStageActionEvent
+import com.fatih.hoghavoc.events.*
 import com.fatih.hoghavoc.input.KeyboardInputProcessor
 import com.fatih.hoghavoc.system.*
 import com.fatih.hoghavoc.ui.model.GameModel
@@ -28,6 +26,7 @@ import com.fatih.hoghavoc.ui.view.gameView
 import com.fatih.hoghavoc.ui.view.pauseView
 import com.fatih.hoghavoc.utils.AudioManager
 import com.fatih.hoghavoc.utils.fireEvent
+import com.github.quillraven.fleks.Entity
 import com.github.quillraven.fleks.World
 import com.github.quillraven.fleks.world
 import ktx.actors.alpha
@@ -42,7 +41,7 @@ class GameScreen(private val gameStage:Stage,private val uiStage: Stage) : KtxSc
 
     private val textureAtlas : TextureAtlas = TextureAtlas("gameObjects/gameObjects.atlas")
     private val tmxMapLoader : TmxMapLoader = TmxMapLoader()
-    private var gameModel : GameModel
+    private lateinit var gameModel : GameModel
     private var currentMap : TiledMap = tmxMapLoader.load("mapObjects/map1.tmx")
     private var currentMapPath = "mapObjects/map1.tmx"
     private val physicWorld  = createWorld(Vector2(0f,-9.8f),false)
@@ -51,6 +50,8 @@ class GameScreen(private val gameStage:Stage,private val uiStage: Stage) : KtxSc
     private val isMobile = Gdx.app.type == ApplicationType.Android || Gdx.app.type == ApplicationType.iOS
     private val bodies : Array<Body> = Array<Body>()
     private var pauseView : PauseView
+    private var createStages = true
+    lateinit var screenListener: ScreenListener
 
     private var world : World = world{
         injectables {
@@ -74,6 +75,8 @@ class GameScreen(private val gameStage:Stage,private val uiStage: Stage) : KtxSc
             add<EntitySpawnSystem>()
             add<AnimationSystem>()
             add<DialogSystem>()
+            add<DestructableItemsSystem>()
+            add<ItemSystem>()
             add<MoveSystem>()
             add<PhysicSystem>()
             add<AttackSystem>()
@@ -91,8 +94,7 @@ class GameScreen(private val gameStage:Stage,private val uiStage: Stage) : KtxSc
     }
 
     init {
-
-        gameModel = GameModel(world)
+        gameModel = GameModel(world = world)
         uiStage.actors {
             gameView = gameView(( Gdx.app.type == ApplicationType.Android || Gdx.app.type == ApplicationType.iOS),gameModel)
             pauseView = pauseView {
@@ -107,10 +109,10 @@ class GameScreen(private val gameStage:Stage,private val uiStage: Stage) : KtxSc
         }
         keyboardInputProcessor = KeyboardInputProcessor(world, gameStage = gameStage, alphaChangeLambda = gameView.changeAlphaLambda)
         gameView.addInputListener(keyboardInputProcessor)
-        gameStage.isDebugAll = true
     }
 
     override fun show() {
+        createStages = false
         world.systems.forEach {system->
             if (system is EventListener){
                 gameStage.addListener(system)
@@ -127,6 +129,13 @@ class GameScreen(private val gameStage:Stage,private val uiStage: Stage) : KtxSc
         val dt = delta.coerceAtMost(0.25f)
         GdxAI.getTimepiece().update(dt)
         world.update(dt)
+        if (Gdx.input.isKeyJustPressed(Input.Keys.R)){
+            gameStage.fireEvent(CurrentMapChangeEvent("mapObjects/map1.tmx",true))
+        }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.M)){
+            screenListener.setScreen(ScreenType.MENU)
+        }
+        println(gameStage.actors.size)
     }
 
     private fun pauseWorld(pause:Boolean){
@@ -152,7 +161,7 @@ class GameScreen(private val gameStage:Stage,private val uiStage: Stage) : KtxSc
         uiStage.disposeSafely()
         gameStage.disposeSafely()
         physicWorld.disposeSafely()
-        Gdx.audio.newMusic(Gdx.files.internal("Audio/mapmusic.mp3")).stop()
+        AudioManager.music?.stop()
         world.dispose()
     }
 
@@ -171,33 +180,39 @@ class GameScreen(private val gameStage:Stage,private val uiStage: Stage) : KtxSc
             }
 
             is CurrentMapChangeEvent->{
-                if (currentMapPath != event.mapStr){
+                if (currentMapPath != event.mapStr || event.restart){
                     currentMap.disposeSafely()
-                    pauseView.run {
-                        isVisible = true
-                        clearActions()
-                        addAction(Actions.fadeOut(2f, Interpolation.smooth2))
+                    if (!event.restart){
+                        pauseView.run {
+                            isVisible = true
+                            clearActions()
+                            addAction(Actions.fadeOut(2f, Interpolation.smooth2))
+                        }
                     }
-                    world.system<PhysicSystem>().destroyWorld = true
                     currentMap = tmxMapLoader.load(event.mapStr)
                     currentMapPath = event.mapStr
+                    physicWorld.getBodies(bodies)
+                    var entity : Entity?=null
+                    world.family(allOf = arrayOf(PlayerComponent::class)).forEach {
+                        entity = it
+                    }
+                    synchronized(physicWorld){
+                        for (i in 0 until bodies.size){
+                            physicWorld.destroyBody(bodies[i])
+                        }
+                    }
+                    bodies.clear()
+                    world.system<AttackSystem>().playerBodyPos = null
+                    world.family(noneOf = arrayOf(PlayerComponent::class)).forEach {
+                        world.remove(it)
+                    }
+                    gameStage.fireEvent(MapChangeEvent(currentMap,entity))
                 }
 
                 true
             }
             is DestroyWorld ->{
-                physicWorld.getBodies(bodies)
-                synchronized(physicWorld){
-                    for (i in 0 until bodies.size){
-                        physicWorld.destroyBody(bodies[i])
-                    }
-                }
-                bodies.clear()
-                world.system<AttackSystem>().playerBodyPos = null
-                world.family(noneOf = arrayOf(TiledComponent::class)).forEach {
-                    world.remove(it)
-                }
-                gameStage.fireEvent(MapChangeEvent(currentMap))
+
                 true
             }
             else ->false

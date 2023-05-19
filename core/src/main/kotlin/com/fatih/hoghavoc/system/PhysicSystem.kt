@@ -17,6 +17,7 @@ import com.fatih.hoghavoc.system.AttackFixtureSystem.Companion.BOMB_EXPLODE_FIXT
 import com.fatih.hoghavoc.system.AttackSystem.Companion.CANNON_BALL_FIXTURE
 import com.fatih.hoghavoc.system.AttackSystem.Companion.PIG_BOMB_FIXTURE
 import com.fatih.hoghavoc.system.AttackSystem.Companion.PIG_BOX_FIXTURE
+import com.fatih.hoghavoc.system.EntitySpawnSystem.Companion.DESTRUCTABLE_BOX
 import com.github.quillraven.fleks.*
 import kotlin.experimental.or
 
@@ -29,16 +30,20 @@ class PhysicSystem(
     private val imageComps : ComponentMapper<ImageComponent>,
     private val playerComps : ComponentMapper<PlayerComponent>,
     private val aiComps : ComponentMapper<AiComponent>,
+    private val itemComps : ComponentMapper<ItemComponent>,
+    private val deadComps : ComponentMapper<DeadComponent>,
+    private val destructableComps : ComponentMapper<DestructableComponent>,
     private val attackFixtureComps : ComponentMapper<AttackFixtureComponent>,
     private val gameStage : Stage
 ) : IteratingSystem(interval = Fixed(1/300f)) , ContactListener{
 
     private lateinit var physicComponent: PhysicComponent
     private lateinit var imageComponent: ImageComponent
+    private lateinit var moveComponent: MoveComponent
     private var playerHitTimer : Long = 0L
     private var bombTimer : Long = 0L
     private var enemyHitTimer : Long = 0L
-    var destroyWorld = false
+    private var boxHitTimer : Long = 0L
     var mapPath = "mapObjects/map1.tmx"
     var waitAnimation = false
 
@@ -58,10 +63,6 @@ class PhysicSystem(
     override fun onTick() {
         super.onTick()
         physicWorld.step(deltaTime * 2f,6,2)
-        if (destroyWorld){
-            gameStage.fireEvent(DestroyWorld())
-            destroyWorld = false
-        }
     }
 
     override fun onTickEntity(entity: Entity) {
@@ -81,6 +82,10 @@ class PhysicSystem(
     override fun onAlphaEntity(entity: Entity, alpha: Float) {
         imageComponent = imageComps[entity]
         physicComponent = physicComps[entity]
+        if (entity in playerComps){
+            moveComponent = moveComps[entity]
+            moveComponent.fireEvent = physicComponent.body.linearVelocity.y >0f
+        }
         imageComponent.image.run {
             setPosition(
             MathUtils.lerp(physicComponent.previousPosition.x,physicComponent.body.position.x,alpha) - if (flipX) physicComponent.flipImageOffset.x else physicComponent.imageOffset.x ,
@@ -89,9 +94,9 @@ class PhysicSystem(
         }
     }
 
-    private fun getEntity(fixtureA: Fixture,fixtureB:Fixture,categoryBit : Short) : Entity {
+    private fun getEntity(fixtureA: Fixture,fixtureB:Fixture,categoryBit : Short,isBodyUserData:Boolean = false) : Entity {
         val fixture = if (fixtureA.filterData.categoryBits == categoryBit) fixtureA else fixtureB
-        return fixture.userData as Entity
+        return if (!isBodyUserData) fixture.userData as Entity else fixture.body.userData as Entity
     }
 
 
@@ -128,11 +133,11 @@ class PhysicSystem(
             BOMB_BIT or KING_BIT -> {
                 var kingEntity : Entity
                 if (fixtureA.userData == PIG_BOMB_FIXTURE){
-                    attackFixtureComps[fixtureA.body.userData as Entity].hitPlayer = true
+                    attackFixtureComps.getOrNull(fixtureA.body.userData as Entity)?.hitPlayer = true
                 }
 
                 if (fixtureB.userData == PIG_BOMB_FIXTURE ) {
-                    attackFixtureComps[fixtureB.body.userData as Entity].hitPlayer = true
+                    attackFixtureComps.getOrNull(fixtureB.body.userData as Entity)?.hitPlayer = true
                 }
 
                 if (fixtureA.userData == CANNON_BALL_FIXTURE){
@@ -208,13 +213,33 @@ class PhysicSystem(
                 }
                 if (TimeUtils.millis() - playerHitTimer >= TIME_BETWEEN_ATTACKS) {
                     physicComps[enemyEntity].run {
-                        body.applyLinearImpulse(Vector2((body.position.x - axeBodyPosition.x) * 15f,
-                            body.position.y - axeBodyPosition.y * 15f),body.worldCenter,true)
+                        body.applyLinearImpulse(Vector2((body.position.x - axeBodyPosition.x) * body.mass * 5f,
+                            (body.position.y - axeBodyPosition.y) * body.mass * 5f),body.worldCenter,true)
                     }
                     gameStage.fireEvent(PlayerHitEnemyEvent(kingEntity, enemyEntity))
                 }
                 playerHitTimer = TimeUtils.millis()
             }
+
+            AXE_BIT or BOX_BIT ->{
+                if (fixtureA.userData == DESTRUCTABLE_BOX || fixtureB.userData == DESTRUCTABLE_BOX){
+                    val boxEntity = getEntity(fixtureA,fixtureB, BOX_BIT,true)
+                    if (boxEntity !in deadComps){
+                        if (TimeUtils.millis() - boxHitTimer > 200L){
+                            destructableComps[boxEntity].create = true
+                            boxHitTimer = TimeUtils.millis()
+                        }
+                    }
+                }
+            }
+
+
+            KING_BIT or ITEM_BIT ->{
+                val itemEntity = getEntity(fixtureA,fixtureB, ITEM_BIT)
+                val kingEntity = getEntity(fixtureA,fixtureB, KING_BIT)
+                itemComps[itemEntity].collideEntity = kingEntity
+            }
+
             COLLISION_DETECT_BIT or KING_BIT ->{
                 val kingEntity = getEntity(fixtureA,fixtureB, KING_BIT)
                 val enemyEntity = getEntity(fixtureA,fixtureB, COLLISION_DETECT_BIT)
@@ -241,6 +266,8 @@ class PhysicSystem(
                             moveIn = true
                             waitAnimation = true
                             gameStage.fireEvent(StartStageActionEvent())
+                        }else{
+                            gameStage.fireEvent(ShowTextEvent("Kill whole enemies before going to next stage"))
                         }
                     }
                 }

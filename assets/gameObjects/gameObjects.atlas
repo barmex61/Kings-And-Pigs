@@ -6,7 +6,7 @@ filter: Nearest, Nearest
 repeat: none
 attack
   rotate: false
-  xy: 1072, 120
+  xy: 1784, 148
   size: 34, 16
   orig: 34, 16
   offset: 0, 0
@@ -81,7 +81,7 @@ bomb_on
   orig: 52, 56
   offset: 0, 0
   index: 3
-bomb_on
+bonb_on
   rotate: false
   xy: 1286, 198
   size: 52, 56
@@ -90,49 +90,49 @@ bomb_on
   index: 0
 boom
   rotate: false
-  xy: 964, 120
+  xy: 1676, 148
   size: 34, 16
   orig: 34, 16
   offset: 0, 0
   index: 0
 box_hit
   rotate: false
-  xy: 1180, 120
+  xy: 1378, 120
   size: 22, 16
   orig: 22, 16
   offset: 0, 0
   index: -1
 box_idle
   rotate: false
-  xy: 1484, 118
+  xy: 1294, 98
   size: 22, 16
   orig: 22, 16
   offset: 0, 0
   index: -1
 box_pieces
   rotate: false
-  xy: 958, 76
+  xy: 2, 4
   size: 10, 10
   orig: 10, 10
   offset: 0, 0
   index: 2
 box_pieces
   rotate: false
-  xy: 2, 4
+  xy: 856, 21
   size: 10, 10
   orig: 10, 10
   offset: 0, 0
   index: 4
 box_pieces
   rotate: false
-  xy: 1656, 156
+  xy: 976, 32
   size: 10, 10
   orig: 10, 10
   offset: 0, 0
   index: 1
 box_pieces
   rotate: false
-  xy: 856, 21
+  xy: 14, 4
   size: 10, 10
   orig: 10, 10
   offset: 0, 0
@@ -188,7 +188,7 @@ cannon_shoot
   index: 1
 dead
   rotate: false
-  xy: 1108, 120
+  xy: 1820, 148
   size: 34, 16
   orig: 34, 16
   offset: 0, 0
@@ -200,6 +200,76 @@ deneme
   orig: 39, 32
   offset: 0, 0
   index: -1
+diamond_idle
+  rotate: false
+  xy: 1656, 152
+  size: 18, 14
+  orig: 18, 14
+  offset: 0, 0
+  index: 6
+diamond_idle
+  rotate: false
+  xy: 1872, 132
+  size: 18, 14
+  orig: 18, 14
+  offset: 0, 0
+  index: 3
+diamond_idle
+  rotate: false
+  xy: 1872, 132
+  size: 18, 14
+  orig: 18, 14
+  offset: 0, 0
+  index: 2
+diamond_idle
+  rotate: false
+  xy: 1872, 132
+  size: 18, 14
+  orig: 18, 14
+  offset: 0, 0
+  index: 4
+diamond_idle
+  rotate: false
+  xy: 1872, 132
+  size: 18, 14
+  orig: 18, 14
+  offset: 0, 0
+  index: 0
+diamond_idle
+  rotate: false
+  xy: 1872, 132
+  size: 18, 14
+  orig: 18, 14
+  offset: 0, 0
+  index: 1
+diamond_idle
+  rotate: false
+  xy: 1872, 116
+  size: 18, 14
+  orig: 18, 14
+  offset: 0, 0
+  index: 8
+diamond_idle
+  rotate: false
+  xy: 1892, 122
+  size: 18, 14
+  orig: 18, 14
+  offset: 0, 0
+  index: 5
+diamond_idle
+  rotate: false
+  xy: 2022, 174
+  size: 18, 14
+  orig: 18, 14
+  offset: 0, 0
+  index: 7
+diamond_idle
+  rotate: false
+  xy: 976, 60
+  size: 18, 14
+  orig: 18, 14
+  offset: 0, 0
+  index: 9
 door_closing
   rotate: false
   xy: 1394, 198
@@ -263,9 +333,65 @@ door_opening
   orig: 46, 56
   offset: 0, 0
   index: 0
+hearth_idle
+  rotate: false
+  xy: 1656, 136
+  size: 18, 14
+  orig: 18, 14
+  offset: 0, 0
+  index: 4
+hearth_idle
+  rotate: false
+  xy: 1402, 122
+  size: 18, 14
+  orig: 18, 14
+  offset: 0, 0
+  index: 1
+hearth_idle
+  rotate: false
+  xy: 1402, 122
+  size: 18, 14
+  orig: 18, 14
+  offset: 0, 0
+  index: 6
+hearth_idle
+  rotate: false
+  xy: 1402, 122
+  size: 18, 14
+  orig: 18, 14
+  offset: 0, 0
+  index: 0
+hearth_idle
+  rotate: false
+  xy: 1402, 122
+  size: 18, 14
+  orig: 18, 14
+  offset: 0, 0
+  index: 3
+hearth_idle
+  rotate: false
+  xy: 1402, 122
+  size: 18, 14
+  orig: 18, 14
+  offset: 0, 0
+  index: 2
+hearth_idle
+  rotate: false
+  xy: 2022, 158
+  size: 18, 14
+  orig: 18, 14
+  offset: 0, 0
+  index: 5
+hearth_idle
+  rotate: false
+  xy: 976, 44
+  size: 18, 14
+  orig: 18, 14
+  offset: 0, 0
+  index: 7
 hello
   rotate: false
-  xy: 1144, 120
+  xy: 1856, 148
   size: 34, 16
   orig: 34, 16
   offset: 0, 0
@@ -493,6 +619,13 @@ king_idle
   size: 78, 58
   orig: 78, 58
   offset: 0, 0
+  index: 4
+king_idle
+  rotate: false
+  xy: 2, 136
+  size: 78, 58
+  orig: 78, 58
+  offset: 0, 0
   index: 0
 king_idle
   rotate: false
@@ -501,13 +634,6 @@ king_idle
   orig: 78, 58
   offset: 0, 0
   index: 1
-king_idle
-  rotate: false
-  xy: 2, 136
-  size: 78, 58
-  orig: 78, 58
-  offset: 0, 0
-  index: 4
 king_idle
   rotate: false
   xy: 2, 136
@@ -668,14 +794,14 @@ king_pig_idle
   size: 38, 28
   orig: 38, 28
   offset: 0, 0
-  index: 1
+  index: 4
 king_pig_idle
   rotate: false
   xy: 1682, 196
   size: 38, 28
   orig: 38, 28
   offset: 0, 0
-  index: 6
+  index: 2
 king_pig_idle
   rotate: false
   xy: 1682, 196
@@ -689,21 +815,21 @@ king_pig_idle
   size: 38, 28
   orig: 38, 28
   offset: 0, 0
+  index: 6
+king_pig_idle
+  rotate: false
+  xy: 1682, 196
+  size: 38, 28
+  orig: 38, 28
+  offset: 0, 0
+  index: 1
+king_pig_idle
+  rotate: false
+  xy: 1682, 196
+  size: 38, 28
+  orig: 38, 28
+  offset: 0, 0
   index: 5
-king_pig_idle
-  rotate: false
-  xy: 1682, 196
-  size: 38, 28
-  orig: 38, 28
-  offset: 0, 0
-  index: 4
-king_pig_idle
-  rotate: false
-  xy: 1682, 196
-  size: 38, 28
-  orig: 38, 28
-  offset: 0, 0
-  index: 2
 king_pig_idle
   rotate: false
   xy: 1842, 196
@@ -846,7 +972,7 @@ king_run
   index: 3
 loser
   rotate: false
-  xy: 1000, 120
+  xy: 1712, 148
   size: 34, 16
   orig: 34, 16
   offset: 0, 0
@@ -909,35 +1035,35 @@ pig_bomb_idle
   index: 3
 pig_bomb_idle
   rotate: false
-  xy: 976, 32
+  xy: 1704, 120
   size: 26, 26
   orig: 26, 26
   offset: 0, 0
   index: 0
 pig_bomb_idle
   rotate: false
-  xy: 1004, 32
+  xy: 1760, 120
   size: 26, 26
   orig: 26, 26
   offset: 0, 0
   index: 5
 pig_bomb_idle
   rotate: false
-  xy: 1032, 32
+  xy: 1816, 120
   size: 26, 26
   orig: 26, 26
   offset: 0, 0
   index: 2
 pig_bomb_idle
   rotate: false
-  xy: 1088, 32
+  xy: 1154, 110
   size: 26, 26
   orig: 26, 26
   offset: 0, 0
   index: 4
 pig_bomb_idle
   rotate: false
-  xy: 1014, 4
+  xy: 1210, 110
   size: 26, 26
   orig: 26, 26
   offset: 0, 0
@@ -951,21 +1077,21 @@ pig_bomb_picking
   index: 2
 pig_bomb_picking
   rotate: false
-  xy: 1060, 60
+  xy: 1844, 120
   size: 26, 26
   orig: 26, 26
   offset: 0, 0
   index: 1
 pig_bomb_picking
   rotate: false
-  xy: 1116, 60
+  xy: 1014, 78
   size: 26, 26
   orig: 26, 26
   offset: 0, 0
   index: 3
 pig_bomb_picking
   rotate: false
-  xy: 1042, 4
+  xy: 1070, 78
   size: 26, 26
   orig: 26, 26
   offset: 0, 0
@@ -986,77 +1112,77 @@ pig_bomb_jump
   index: -1
 pig_bomb_run
   rotate: false
-  xy: 976, 60
+  xy: 1676, 120
   size: 26, 26
   orig: 26, 26
   offset: 0, 0
   index: 2
 pig_bomb_fall
   rotate: false
-  xy: 976, 60
+  xy: 1676, 120
   size: 26, 26
   orig: 26, 26
   offset: 0, 0
   index: -1
 pig_bomb_run
   rotate: false
-  xy: 1032, 60
+  xy: 1788, 120
   size: 26, 26
   orig: 26, 26
   offset: 0, 0
   index: 4
 pig_bomb_run
   rotate: false
-  xy: 1088, 60
+  xy: 986, 78
   size: 26, 26
   orig: 26, 26
   offset: 0, 0
   index: 1
 pig_bomb_run
   rotate: false
-  xy: 986, 4
+  xy: 1042, 78
   size: 26, 26
   orig: 26, 26
   offset: 0, 0
   index: 3
 pig_bomb_throw
   rotate: false
-  xy: 1154, 92
+  xy: 1892, 138
   size: 26, 26
   orig: 26, 26
   offset: 0, 0
   index: 3
 pig_bomb_throw
   rotate: false
-  xy: 1004, 60
+  xy: 1732, 120
   size: 26, 26
   orig: 26, 26
   offset: 0, 0
   index: 0
 pig_bomb_throw
   rotate: false
-  xy: 1060, 32
+  xy: 958, 76
   size: 26, 26
   orig: 26, 26
   offset: 0, 0
   index: 2
 pig_bomb_throw
   rotate: false
-  xy: 1116, 32
+  xy: 1182, 110
   size: 26, 26
   orig: 26, 26
   offset: 0, 0
   index: 4
 pig_bomb_throw
   rotate: false
-  xy: 1070, 4
+  xy: 1238, 110
   size: 26, 26
   orig: 26, 26
   offset: 0, 0
   index: 1
 pig_box_ground
   rotate: false
-  xy: 1428, 114
+  xy: 1294, 116
   size: 26, 20
   orig: 26, 20
   offset: 0, 0
@@ -1088,14 +1214,7 @@ pig_box_idle
   size: 26, 30
   orig: 26, 30
   offset: 0, 0
-  index: 8
-pig_box_idle
-  rotate: false
-  xy: 1516, 136
-  size: 26, 30
-  orig: 26, 30
-  offset: 0, 0
-  index: 4
+  index: 5
 pig_box_idle
   rotate: false
   xy: 1516, 136
@@ -1109,7 +1228,14 @@ pig_box_idle
   size: 26, 30
   orig: 26, 30
   offset: 0, 0
-  index: 5
+  index: 8
+pig_box_idle
+  rotate: false
+  xy: 1516, 136
+  size: 26, 30
+  orig: 26, 30
+  offset: 0, 0
+  index: 4
 pig_box_picking
   rotate: false
   xy: 1516, 136
@@ -1126,74 +1252,74 @@ pig_box_idle
   index: 1
 pig_box_idle
   rotate: false
-  xy: 986, 88
+  xy: 986, 106
   size: 26, 30
   orig: 26, 30
   offset: 0, 0
   index: 3
 pig_box_idle
   rotate: false
-  xy: 1070, 88
+  xy: 1070, 106
   size: 26, 30
   orig: 26, 30
   offset: 0, 0
   index: 0
 pig_box_inside_fall
   rotate: false
-  xy: 1400, 116
+  xy: 1126, 84
   size: 26, 20
   orig: 26, 20
   offset: 0, 0
   index: -1
 pig_box_inside_jump
   rotate: false
-  xy: 902, 2
+  xy: 930, 2
   size: 26, 20
   orig: 26, 20
   offset: 0, 0
   index: 1
 pig_box_inside_jump
   rotate: false
-  xy: 1098, 10
+  xy: 1098, 84
   size: 26, 20
   orig: 26, 20
   offset: 0, 0
   index: 0
-pig_box_jump_ready
+pig_box_inside_jump_ready
   rotate: false
-  xy: 958, 2
+  xy: 902, 2
+  size: 26, 20
+  orig: 26, 20
+  offset: 0, 0
+  index: 0
+pig_box_inside_jump_ready
+  rotate: false
+  xy: 1154, 88
   size: 26, 20
   orig: 26, 20
   offset: 0, 0
   index: 1
-pig_box_jump_ready
-  rotate: false
-  xy: 1456, 114
-  size: 26, 20
-  orig: 26, 20
-  offset: 0, 0
-  index: 0
-pig_box_looking_out
+pig_box_inside_looking_out
   rotate: false
   xy: 874, 2
   size: 26, 20
   orig: 26, 20
   offset: 0, 0
-  index: 2
-pig_box_looking_out
-  rotate: false
-  xy: 930, 2
-  size: 26, 20
-  orig: 26, 20
-  offset: 0, 0
   index: 1
-pig_box_looking_out
+pig_box_inside_looking_out
   rotate: false
-  xy: 1372, 116
+  xy: 958, 2
   size: 26, 20
   orig: 26, 20
   offset: 0, 0
   index: 0
+pig_box_inside_looking_out
+  rotate: false
+  xy: 1266, 116
+  size: 26, 20
+  orig: 26, 20
+  offset: 0, 0
+  index: 2
 pig_box_picking
   rotate: false
   xy: 1460, 136
@@ -1217,7 +1343,7 @@ pig_box_picking
   index: 2
 pig_box_picking
   rotate: false
-  xy: 1042, 88
+  xy: 1042, 106
   size: 26, 30
   orig: 26, 30
   offset: 0, 0
@@ -1266,14 +1392,14 @@ pig_box_run
   index: 1
 pig_box_run
   rotate: false
-  xy: 1014, 88
+  xy: 1014, 106
   size: 26, 30
   orig: 26, 30
   offset: 0, 0
   index: 3
 pig_box_run
   rotate: false
-  xy: 1126, 88
+  xy: 1126, 106
   size: 26, 30
   orig: 26, 30
   offset: 0, 0
@@ -1301,14 +1427,14 @@ pig_box_throwing
   index: 4
 pig_box_throwing
   rotate: false
-  xy: 958, 88
+  xy: 958, 104
   size: 26, 30
   orig: 26, 30
   offset: 0, 0
   index: 1
 pig_box_throwing
   rotate: false
-  xy: 1098, 88
+  xy: 1098, 106
   size: 26, 30
   orig: 26, 30
   offset: 0, 0
@@ -1371,14 +1497,14 @@ pig_fire_fall
   index: -1
 pig_fire_prepare
   rotate: false
-  xy: 1260, 118
+  xy: 1210, 90
   size: 26, 18
   orig: 26, 18
   offset: 0, 0
   index: 0
 pig_fire_prepare
   rotate: false
-  xy: 1316, 118
+  xy: 1238, 90
   size: 26, 18
   orig: 26, 18
   offset: 0, 0
@@ -1392,14 +1518,14 @@ pig_fire_ready
   index: 2
 pig_fire_ready
   rotate: false
-  xy: 1232, 118
+  xy: 1322, 118
   size: 26, 18
   orig: 26, 18
   offset: 0, 0
   index: 1
 pig_fire_ready
   rotate: false
-  xy: 1344, 118
+  xy: 1266, 96
   size: 26, 18
   orig: 26, 18
   offset: 0, 0
@@ -1413,21 +1539,21 @@ pig_fire_use
   index: 1
 pig_fire_use
   rotate: false
-  xy: 1204, 118
+  xy: 1182, 90
   size: 26, 18
   orig: 26, 18
   offset: 0, 0
   index: 0
 pig_fire_jump
   rotate: false
-  xy: 1204, 118
+  xy: 1182, 90
   size: 26, 18
   orig: 26, 18
   offset: 0, 0
   index: -1
 pig_fire_use
   rotate: false
-  xy: 1288, 118
+  xy: 1350, 118
   size: 26, 18
   orig: 26, 18
   offset: 0, 0
@@ -1473,6 +1599,13 @@ pig_idle
   size: 34, 28
   orig: 34, 28
   offset: 0, 0
+  index: 0
+pig_idle
+  rotate: false
+  xy: 1712, 166
+  size: 34, 28
+  orig: 34, 28
+  offset: 0, 0
   index: 2
 pig_idle
   rotate: false
@@ -1488,13 +1621,6 @@ pig_idle
   orig: 34, 28
   offset: 0, 0
   index: 1
-pig_idle
-  rotate: false
-  xy: 1712, 166
-  size: 34, 28
-  orig: 34, 28
-  offset: 0, 0
-  index: 0
 pig_idle
   rotate: false
   xy: 1784, 166
@@ -1581,7 +1707,7 @@ question
   index: 0
 wtf
   rotate: false
-  xy: 1036, 120
+  xy: 1748, 148
   size: 34, 16
   orig: 34, 16
   offset: 0, 0

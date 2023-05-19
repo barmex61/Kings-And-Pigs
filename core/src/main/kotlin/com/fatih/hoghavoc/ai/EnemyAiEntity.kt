@@ -36,7 +36,7 @@ class EnemyAiEntity(
     val animationComponent = animComps[entity]
     private val physicComponent = physicComps[entity]
     private val moveComponent : MoveComponent? = moveComps.getOrNull(entity)
-    private val attackComponent = attackComps[entity]
+    val attackComponent = attackComps[entity]
     private val imageComponent = imageComps[entity]
     private val lifeComponent = lifeComps[entity]
     private val aiComponent = aiComps[entity]
@@ -141,7 +141,7 @@ class EnemyAiEntity(
                 distanceBetweenItself = kotlin.math.sqrt(xDiff.pow(2)+yDiff.pow(2))
 
                 if (distanceBetweenItself <= 0.0008f){
-                    if (moveComponent.sin<=0f && time - moveComponent.timeBetweenJumps >= 300L ){
+                    if (moveComponent.sin<=0f && time - moveComponent.timeBetweenJumps >= 500L ){
                         moveComponent.sin = 1f
                         moveComponent.timeBetweenJumps = TimeUtils.millis()
                     }

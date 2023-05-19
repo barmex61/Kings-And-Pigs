@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.9" tiledversion="1.9.2" orientation="orthogonal" renderorder="right-down" width="12" height="24" tilewidth="32" tileheight="32" infinite="0" nextlayerid="9" nextobjectid="68">
+<map version="1.9" tiledversion="1.9.2" orientation="orthogonal" renderorder="right-down" width="12" height="24" tilewidth="32" tileheight="32" infinite="0" nextlayerid="9" nextobjectid="71">
  <properties>
   <property name="music" value="audio/mapmusic.mp3"/>
  </properties>
@@ -104,9 +104,9 @@
 0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,281,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,281,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,281,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,281,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
@@ -146,10 +146,11 @@
   <object id="34" x="224" y="96" width="96" height="10"/>
   <object id="35" x="96" y="64" width="32" height="10"/>
   <object id="39" name="Roof" x="288" y="544" width="32" height="5"/>
-  <object id="40" name="Roof" x="288" y="448" width="32" height="5"/>
+  <object id="40" name="Roof" x="288" y="480" width="32" height="5"/>
   <object id="41" name="Roof" x="288" y="352" width="32" height="5"/>
   <object id="42" name="Roof" x="96" y="224" width="32" height="5"/>
   <object id="66" x="128" y="128" width="32" height="10"/>
+  <object id="69" name="Roof" x="288" y="416" width="32" height="5"/>
  </objectgroup>
  <objectgroup id="7" name="Portals">
   <object id="37" name="Gate" gid="523" x="288" y="736" width="46" height="56"/>
@@ -180,7 +181,7 @@
     <property name="moveRange" type="float" value="5"/>
    </properties>
   </object>
-  <object id="50" name="Pig_bomb" gid="524" x="67.5" y="542" width="26" height="26">
+  <object id="50" name="Pig_bomb" gid="524" x="100.5" y="542" width="26" height="26">
    <properties>
     <property name="moveRange" type="float" value="3"/>
    </properties>
@@ -219,5 +220,6 @@
     <property name="moveRange" type="float" value="3"/>
    </properties>
   </object>
+  <object id="70" name="Box" gid="525" x="288" y="640" width="26" height="20"/>
  </objectgroup>
 </map>

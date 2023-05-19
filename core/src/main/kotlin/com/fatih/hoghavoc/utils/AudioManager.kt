@@ -14,7 +14,7 @@ object AudioManager : EventListener {
     private val soundCache = hashMapOf<String,Sound>()
     private var randomPath = "audio/giant1.wav"
     private var random = 1
-    private var music : Music? = null
+    var music : Music? = null
     private var pitch = 1f
 
 
@@ -86,7 +86,7 @@ object AudioManager : EventListener {
                 val path = if((1..2).random() == 1) JUMP1 else JUMP2
                 soundCache.getOrPut(path){
                     Gdx.audio.newSound(Gdx.files.internal(path))
-                }.play(0.10f,1.15f,0f)
+                }.play(0.04f,1.2f,0f)
                 true
             }
             else -> false

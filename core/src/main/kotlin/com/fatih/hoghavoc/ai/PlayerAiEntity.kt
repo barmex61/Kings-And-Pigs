@@ -32,7 +32,7 @@ class PlayerAiEntity(
         }
 
     val isDead: Boolean
-        get() = lifeComponent.isDead
+        get() = lifeComponent.deadState
 
     val getHit: Boolean
         get() = lifeComponent.getHit
@@ -68,12 +68,12 @@ class PlayerAiEntity(
             field = value
         }
 
-    var fireJumpEvent : Boolean = false
-        get() = moveComponent.fireEvent
+    var fireExtraLifeEvent: Boolean
+        get() = lifeComponent.fireExtraLifeEvent
         set(value) {
-            moveComponent.fireEvent = value
-            field = value
+            lifeComponent.fireExtraLifeEvent = value
         }
+
 
     fun startAnimation(animationType: AnimationType,playMode: PlayMode,frameDuration : Float = DEFAULT_FRAME_DURATION ) {
         animationComponent.nextAnimation(animationType,playMode,frameDuration)
@@ -104,6 +104,10 @@ class PlayerAiEntity(
     fun resetAttackState() {
         attackComponent.resetState = true
         lifeComponent.getHit = false
+    }
+
+    fun setMaxLife() {
+        lifeComponent.fireHealEvent = true
     }
 
 }
